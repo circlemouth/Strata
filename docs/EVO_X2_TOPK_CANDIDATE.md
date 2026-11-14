@@ -113,3 +113,8 @@ A completion event fences input/scratch reuse. Wrong hardware returns CTest skip
 
 No EVO access, model loads, production changes, service restarts, GitHub writes,
 credential reads or private runtime data were used for this candidate.
+
+The follow-up [batch wiring plan](EVO_X2_TOPK_BATCH_WIRING_PLAN.md) identifies the
+shared graph-key and verdict-lifetime hazards. A CPU lifecycle reference has been
+added to the host test runner. It does not add native batched dispatch or change
+this candidate's qualification status.
