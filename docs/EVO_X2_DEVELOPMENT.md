@@ -97,7 +97,8 @@ A future HIP build must use the existing approved toolchain and explicitly set
 HIP on, CUDA off, and `CMAKE_HIP_ARCHITECTURES=gfx1151`. Never spoof gfx1100 or
 change a host driver, BIOS, power limit or toolchain as part of a code comparison.
 CPU tests do not compile or execute HIP kernels. Follow the individual candidate
-documentation for unperformed checks.
+documentation for unperformed checks. The [isolated B/C compile plan](evo_x2/isolated_hip_build_plan.md)
+keeps toolchain failures separate from candidate regressions.
 
 ## Deployment remains blocked
 
