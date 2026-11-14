@@ -96,7 +96,12 @@ bool EvoMemoryPlan::reserve(const std::string& ref, const EvoBacking& b, std::st
         }
     } catch (const std::overflow_error&) { why = "allocation byte count overflow"; return false; }
     entries_.emplace(b.backing_id, Entry{b, false, 1});
-    references_.emplace(ref, b.backing_id);
+    try {
+        references_.emplace(ref, b.backing_id);
+    } catch (...) {
+        entries_.erase(b.backing_id);
+        throw;
+    }
     if (headroom_observed_) incremental_reserved_ += b.physical_bytes;
     return true;
 }
@@ -119,8 +124,8 @@ bool EvoMemoryPlan::alias(const std::string& ref, const std::string& existing, s
     if (ref.empty() || references_.count(ref) || found == references_.end()) {
         why = "alias requires a new reference and an existing backing"; return false;
     }
-    ++entries_.at(found->second).refs;
     references_.emplace(ref, found->second);
+    ++entries_.at(found->second).refs;
     return true;
 }
 
@@ -159,7 +164,7 @@ bool EvoMemoryPlan::observe_headroom(bool known, uint64_t available, uint64_t no
         return false;
     }
     pressure_ = false;
-    return true;
+    return incremental_reserved_ <= observed_room_;
 }
 
 bool EvoMemoryPlan::sustained_pressure(uint64_t now) const {

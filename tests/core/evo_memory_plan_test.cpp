@@ -67,10 +67,10 @@ int main() {
     check(!plan.reserve("during-pressure", backing("future-work", 1), why), "no new allocation during pressure");
     check(!plan.sustained_pressure(5000000000ull), "five-second threshold is not admission grace");
     check(plan.sustained_pressure(5000000001ull), "five-second sustained pressure");
-    check(plan.observe_headroom(true, 13 * GiB, 6000000000ull), "recovery clears pressure");
+    check(plan.observe_headroom(true, 14 * GiB, 6000000000ull), "recovery clears pressure with future room");
     check(!plan.sustained_pressure(20000000000ull), "no stale pressure after recovery");
     check(!plan.observe_headroom(false, 124 * GiB, 20000000000ull), "unknown headroom cannot admit");
-    check(plan.observe_headroom(true, plan.host_reserve_bytes(), 21000000000ull), "exact reserve sufficient for zero increment");
+    check(!plan.observe_headroom(true, plan.host_reserve_bytes(), 21000000000ull), "pending reservations need future headroom");
     check(!plan.reserve("unfunded", backing("unfunded", 1), why), "reserve cannot spend final headroom byte");
     check(plan.observe_headroom(true, plan.host_reserve_bytes() + 2 * GiB, 22000000000ull), "fresh measured growth room");
     check(plan.reserve("future", backing("future", GiB), why), "reserve future workspace");
