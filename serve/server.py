@@ -66,6 +66,7 @@ from serve.frontend import (THINK_END, ChatTemplate, Event, OutputParser, parser
                             tool_choice_of, unmark_think_literals)
 from serve.mcp import McpCancelled, hub_from_config  # noqa: E402
 from serve import runconfig  # noqa: E402
+from serve import evo_contract as evo_api  # noqa: E402
 from serve.webfiles import subtree_file as web_subtree_file  # noqa: E402
 from strata_control import engine_component  # noqa: E402
 from strata_control import tls  # noqa: E402
@@ -4904,9 +4905,12 @@ def slot_save_dir(value, base: str | None = None) -> str:
 class Service:
     def __init__(self, engine: Engine, tokenizer, template: ChatTemplate, model_name: str = "qwen3.8-flash-next",
                  vision: Vision | None = None, sampling_defaults: dict | None = None,
-                 fit_max_tokens: bool = True):
+                 fit_max_tokens: bool = True, evo_contract: bool = False):
         self.engine, self.tok, self.template, self.model, self.vision = engine, tokenizer, template, model_name, vision
         self.literals = literal_tags(getattr(tokenizer, "control_tokens", ()))   # texts that stay text inside a message
+        self.evo_contract = evo_contract
+        if evo_contract and fit_max_tokens:
+            raise ValueError("evo_contract requires fit_max_tokens=False")
         self.fit_max_tokens = fit_max_tokens          # default: clamp the output cap to the room left; False (--no-fit-max-tokens) = 400
         self.aliases: list[str] = []                  # #297: other names of the model (the config's `aliases`)
         self.answer_room = True                       # 0.1.45: see ANSWER_ROOM_MIN_CAP (the config's "answer_room": false turns it off)
@@ -5421,10 +5425,18 @@ class Service:
                              "card's temperature and power, and the log; a request after "
                              f"{self.FATAL_GPU_WINDOW_S / 60:g} minutes tries again")
 
+    def check_evo_runtime(self):
+        if self.evo_contract:
+            try:
+                evo_api.validate_runtime(self.engine)
+            except ValueError as exc:
+                raise EngineStarting(str(exc)) from None
+
     def ensure_loaded(self):
         """Start the engine if it is not running (unloaded, or it died - issue #27), after the before_load hook and
         the free-VRAM check.  The caller holds self.fifo."""
         if self.loaded() and not self._vision_down():
+            self.check_evo_runtime()
             return
         hook_failed = None
         if self.before_load:
@@ -5504,6 +5516,7 @@ class Service:
             if isinstance(e, OSError):
                 raise EngineDied(f"the engine could not be started: {e}") from e
             raise
+        self.check_evo_runtime()
         print("[strata] the engine is running again", flush=True)
         if self.restore_after_load:                      # an image job unloaded it: its conversation comes back
             images_api.restore_session(self)
@@ -5561,6 +5574,7 @@ class Service:
         # a request is on its way: the idle thread must not unload between this and the request's own start
         self.last_request_at = time.time()
         if self.loaded() and not self._vision_down():
+            self.check_evo_runtime()
             return
         trace = getattr(self.request_trace, "record", None)
         waiting = time.perf_counter()
@@ -5684,7 +5698,7 @@ class Service:
         if not s and not effort:
             return req
         req = dict(req)
-        if "max_tokens" in s and not req.get("max_tokens") and not req.get("max_completion_tokens"):
+        if not self.evo_contract and "max_tokens" in s and not req.get("max_tokens") and not req.get("max_completion_tokens"):
             req["max_tokens"] = s["max_tokens"]
         if effort:
             if api == "openai":
@@ -6017,6 +6031,11 @@ class Service:
         """-> (ids, thinking, max_new). An unset or non-positive max_new (some clients send -1) means "unlimited":
         the rest of the context.  `force` (forced_call): without thinking the reply starts with it, so it ends the
         prompt; with thinking, Service.run writes it once the thinking is over."""
+        if self.evo_contract:
+            self.check_evo_runtime()
+            max_new = evo_api.normalize_output_limit({"max_tokens": max_new})
+            if self.fit_max_tokens:
+                raise ValueError("evo_contract does not permit fit_max_tokens")
         # `cancel` (#1999): set when the client hangs up; the downloads, the wait for the turn and the encodes stop
         # between pictures and raise ClientGone
         # Cached tool images are references in browser history, never arbitrary file paths or huge base64 strings.
@@ -8235,6 +8254,12 @@ def make_handler(svc: Service):
                 self.end_headers()
                 self.wfile.write(body)
             elif path in ("/health", "/api/health"):
+                if svc.evo_contract:
+                    try:
+                        svc.check_evo_runtime()
+                    except EngineStarting as exc:
+                        self._json(503, {"status": "unavailable", "error": str(exc)})
+                        return
                 self._json(200, {"status": "ok", "max_context": svc.reported_ctx(), "model": svc.model,
                                  "images": svc.vision is not None, "api_key": bool(svc.api_key),
                                  "image_generation": svc.images is not None,
@@ -8546,13 +8571,15 @@ def make_handler(svc: Service):
             params = {names.get(k, k): v for k, v in defaults.items()
                       if k in ("temperature", "top_p", "top_k", "min_p", "seed", "repetition_penalty",
                                "presence_penalty", "frequency_penalty", "penalty_last_n")}
-            params["n_predict"] = svc.shared.get("max_tokens", -1)
+            params["n_predict"] = evo_api.OUTPUT_TOKENS if svc.evo_contract else svc.shared.get("max_tokens", -1)
             props = {"default_generation_settings": {"n_ctx": svc.reported_ctx(), "params": params},
                      "total_slots": max(1, int(getattr(svc.engine, "batch", 0) or 0)),   # #1004: the batch slots
                      "model_alias": svc.model, "chat_template": svc.template.source,
                      "chat_template_caps": svc.template.caps,
                      "modalities": {"vision": svc.vision is not None}, "models_autoload": hasattr(svc.engine, "restart"),
                      "is_sleeping": not svc.loaded()}
+            if svc.evo_contract:
+                props["evo_contract"] = evo_api.effective_contract()
             if getattr(svc.engine, "model_path", None):
                 props["model_path"] = svc.engine.model_path
             version = getattr(svc.engine, "info", {}).get("version")
@@ -8739,6 +8766,8 @@ def make_handler(svc: Service):
                 items.close()
 
         def _openai(self, req):
+            if svc.evo_contract:
+                req = evo_api.normalize_request(req, "max_tokens")
             req = svc.with_shared(req, "openai")
             bias_api.normalize(req.get("logit_bias"), len(getattr(svc.tok, "tokens", ())) or None)
             messages, tools, kw = openai_to_messages(req)
@@ -8943,6 +8972,11 @@ def make_handler(svc: Service):
                 pass
 
         def _responses_prepare(self, req, cancel=None):
+            if svc.evo_contract:
+                try:
+                    req = evo_api.normalize_request(req, "max_output_tokens")
+                except ValueError as exc:
+                    raise ResponsesError(str(exc), "max_output_tokens") from None
             responses_api.check_request(req)
             messages = responses_api.input_messages(req)
             tools, names, skipped = responses_api.request_tools(req)
@@ -9012,6 +9046,8 @@ def make_handler(svc: Service):
             self._json(200, {"input_tokens": len(svc.encode_prompt(messages, tools, kw, store=False))})
 
         def _anthropic(self, req):
+            if svc.evo_contract:
+                req = evo_api.normalize_request(req, "max_tokens")
             svc.load()
             req = svc.with_shared(req, "anthropic")
             messages, tools, kw = anthropic_to_messages(req, svc.anthropic_think_unasked)
@@ -10161,6 +10197,10 @@ def _main(argv=None, *, lifecycle_event=None, interrupt_exit_code: int = 0) -> i
     split_joined_args(cfg)
     if a.config and a.engine == "strata":
         cfg = apply_saved_tuning(cfg)
+    try:
+        evo_enabled = evo_api.validate_config(cfg, fit_cli=a.fit_max_tokens, lazy_cli=a.lazy)
+    except ValueError as exc:
+        ap.error(str(exc))
     attestation_key = os.environ.pop("STRATA_OWNER_ATTEST_KEY", None)
     launch_attestation = None
     if a.owner_fd is not None:
@@ -10382,8 +10422,15 @@ def _main(argv=None, *, lifecycle_event=None, interrupt_exit_code: int = 0) -> i
                   "using the V4.1 template so tool calls come back as real calls", flush=True)
     svc = Service(engine, tok, ChatTemplate(tpl if tpl.exists() else ROOT / "serve/chat_template.jinja"),
                   model_name=default_model_name(cfg), vision=vision,
-                  sampling_defaults=sampling_defaults,
+                  sampling_defaults=sampling_defaults, evo_contract=evo_enabled,
                   fit_max_tokens=a.fit_max_tokens or (not a.no_fit_max_tokens and cfg.get("fit_max_tokens") is not False))
+    if evo_enabled:
+        try:
+            svc.check_evo_runtime()
+        except EngineStarting as exc:
+            engine.close() if hasattr(engine, "close") else None
+            raise SystemExit(str(exc)) from None
+        print("[strata] EVO API contract active; hardware/concurrency qualification remains required", flush=True)
     svc.launch_attestation = launch_attestation
     if (cfg.get("arch") or "") == "deepseek41" and vision is None and a.engine == "strata":
         # DeepSeek-V4.1 reads pictures with the engine's own tower (--vision on, the default): no separate reader process.
