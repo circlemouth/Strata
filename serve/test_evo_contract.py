@@ -7,11 +7,20 @@ from types import SimpleNamespace
 from unittest import mock
 
 from serve import evo_contract as evo
+from serve import runconfig
 from serve.frontend import ChatTemplate
 from serve.server import ByteTokenizer, MockEngine, Service, serve
 
 
 class Limits(unittest.TestCase):
+    def test_default_config_view_does_not_offer_experimental_contract(self):
+        for cfg in ({}, {"evo_contract": False}):
+            keys = {item["key"] for item in runconfig.view(cfg, "config.json")["keys"]}
+            self.assertNotIn("evo_contract", keys)
+            with self.assertRaises(ValueError):
+                runconfig.apply(cfg, {"evo_contract": True})
+        keys = {item["key"] for item in runconfig.view({"evo_contract": True}, "config.json")["keys"]}
+        self.assertIn("evo_contract", keys)
     def test_missing_null_and_matching_aliases(self):
         for request in ({}, {key: None for key in evo.OUTPUT_ALIASES}):
             self.assertEqual(evo.normalize_output_limit(request), 16384)
