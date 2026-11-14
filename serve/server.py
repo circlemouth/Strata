@@ -5427,6 +5427,8 @@ class Service:
 
     def check_evo_runtime(self):
         if self.evo_contract:
+            if not self.loaded() or getattr(self.engine, "starting", False) or getattr(self.engine, "unloaded", False):
+                raise EngineStarting("EVO contract unavailable: the engine is not loaded and running")
             try:
                 evo_api.validate_runtime(self.engine)
             except ValueError as exc:
@@ -8563,6 +8565,12 @@ def make_handler(svc: Service):
             if model not in svc.model_names():
                 self._json(404, {"error": {"message": "model not found"}})
                 return
+            if svc.evo_contract:
+                try:
+                    svc.check_evo_runtime()
+                except EngineStarting as exc:
+                    self._json(503, {"error": {"message": str(exc)}})
+                    return
             if not svc.loaded() and not getattr(svc.engine, "unloaded", False):
                 self._json(503, {"error": {"message": "the engine is not running"}})
                 return

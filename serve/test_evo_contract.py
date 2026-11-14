@@ -119,11 +119,18 @@ class HttpContract(unittest.TestCase):
             self.assertEqual(status, 503, body)
             conn = http.client.HTTPConnection("127.0.0.1", self.port)
             try:
-                conn.request("GET", "/health")
-                response = conn.getresponse()
-                self.assertEqual(response.status, 503, response.read())
+                for path in ("/health", "/props"):
+                    conn.request("GET", path)
+                    response = conn.getresponse()
+                    self.assertEqual(response.status, 503, response.read())
             finally:
                 conn.close()
+
+    def test_stale_info_from_unloaded_engine_is_not_healthy(self):
+        for attribute in ("starting", "unloaded"):
+            with mock.patch.object(self.engine, attribute, True, create=True):
+                status, body = self.post("/v1/chat/completions", {"max_tokens": 1})
+                self.assertEqual(status, 503, body)
 
     def test_props_does_not_claim_concurrency_qualification(self):
         conn = http.client.HTTPConnection("127.0.0.1", self.port)
