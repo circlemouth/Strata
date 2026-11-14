@@ -114,6 +114,13 @@ class HttpContract(unittest.TestCase):
                     self.assertEqual(status, 400, body)
                     gen.assert_not_called()
 
+    def test_responses_shortcut_cannot_bypass_output_validation(self):
+        with mock.patch.object(self.svc, "codex_thread_titles", True), \
+                mock.patch.object(server.responses_api, "thread_title_events") as shortcut:
+            status, body = self.post("/v1/responses", {"max_tokens": 0})
+            self.assertEqual(status, 400, body)
+            shortcut.assert_not_called()
+
     def test_defaults_and_aliases_reach_engine_unchanged(self):
         self.svc.shared = {"max_tokens": 1}
         try:

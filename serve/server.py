@@ -8882,6 +8882,12 @@ def make_handler(svc: Service):
         def _responses(self, req):
             """#451: POST /v1/responses - OpenAI's Responses API, stateless (serve/responses.py), on the chat path.
             Errors use the Responses format; once the stream has started they arrive as a response.failed event."""
+            if svc.evo_contract:
+                try:
+                    req = evo_api.normalize_request(req, "max_output_tokens")
+                except ValueError as exc:
+                    return self._json(400, responses_error_body(str(exc), "invalid_request_error",
+                                                               param="max_output_tokens"))
             try:
                 title = (responses_api.thread_title_events(req, svc.model_for(req))
                          if svc.codex_thread_titles else None)
