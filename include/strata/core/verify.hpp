@@ -28,6 +28,7 @@
 #include "strata/core/layer.hpp"
 #include "strata/core/session.hpp"
 #include "strata/kernels/sampler.hpp"
+#include "strata/kernels/qsa_evo_topk.hpp"
 #include "strata/kernels/window_limits.hpp"
 #include "strata/kernels/verify_kernels.hpp"
 
@@ -749,6 +750,13 @@ private:
     float *qidx_ = nullptr, *scores_ = nullptr, *attn_ = nullptr, *attn32_ = nullptr, *attn_scratch_ = nullptr;
     float* tail_snap_ = nullptr;                              // per QSA layer
     int32_t* sel_ = nullptr;
+#if defined(STRATA_USE_HIP) && defined(__linux__)
+    strata::kernels::QsaTopkScratch evo_topk_scratch_;  // owned by arena_; never a session snapshot field
+    strata::kernels::evo_topk::Config evo_topk_config_;
+    const char* evo_topk_reason_ = "register";
+    uint64_t evo_topk_selected_ = 0, evo_topk_below_ = 0, evo_topk_unprepared_ = 0;
+    int evo_topk_variant(int T, int64_t pos0);
+#endif
     int32_t* topk_scratch_ = nullptr;   // qsa_block_topk_long's multi-CTA exchange (STRATA_SELECT_LONG=1 only)
     float *logits_ = nullptr, *w_ = nullptr, *shared_ = nullptr, *parts_ = nullptr, *hit_out_ = nullptr;
     int32_t *ids_ = nullptr, *hit_slot_ = nullptr, *hit_dst_ = nullptr, *hit_count_ = nullptr;

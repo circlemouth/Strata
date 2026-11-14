@@ -1273,6 +1273,14 @@ if(STRATA_ENABLE_CUDA OR STRATA_ENABLE_HIP)
 
   # the QSA top-k the engine dispatches against the original kernel: identical ids on both sides of the register
   # kernel's reach, with tied and with equal scores (synthetic, no model)
+  if(STRATA_ENABLE_HIP AND CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    add_executable(qsa_evo_topk_parity src/kernels/qsa_evo_topk_parity.cpp)
+    target_include_directories(qsa_evo_topk_parity PRIVATE ${_strata_gpu_include_directories})
+    target_link_libraries(qsa_evo_topk_parity PRIVATE strata_kernels ${_strata_gpu_runtime_target})
+    add_test(NAME qsa_evo_topk_parity COMMAND qsa_evo_topk_parity)
+    set_tests_properties(qsa_evo_topk_parity PROPERTIES SKIP_RETURN_CODE 77)
+  endif()
+
   add_executable(qsa_topk_parity src/kernels/qsa_topk_parity.cpp)
   target_include_directories(qsa_topk_parity PRIVATE ${_strata_gpu_include_directories})
   target_link_libraries(qsa_topk_parity PRIVATE strata_kernels ${_strata_gpu_runtime_target})

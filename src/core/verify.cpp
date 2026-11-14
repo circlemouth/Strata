@@ -694,6 +694,13 @@ void Verifier::diag(std::FILE* f) const {
     std::fprintf(f, "  verify window%s: %d tokens at position %lld, host at layer step %u; the GPU rang %u; flags: "
                     "served %u, plan (A) %u, copies (B) %u\n", current ? "" : " (last window, not the current stage)",
                  last_t_, (long long) last_pos0_, cur_layer_ + 1, rd(h_seq_), rd(h_flag_), rd(h_flagA_), rd(h_flagB_));
+#if defined(STRATA_USE_HIP) && defined(__linux__)
+    if (evo_topk_config_.split)
+        std::fprintf(f, "  EVO top-k window decisions: split=%llu below-threshold=%llu missing-warm-graph=%llu "
+                        "scratch=%zu bytes reason=%s; batch graphs use register\n",
+                     (unsigned long long) evo_topk_selected_, (unsigned long long) evo_topk_below_,
+                     (unsigned long long) evo_topk_unprepared_, evo_topk_scratch_.capacity.bytes, evo_topk_reason_);
+#endif
     trace_dump(f);   // #649: STRATA_VERIFY_TRACE=1 only
 }
 
@@ -878,6 +885,15 @@ bool Verifier::set_logit_bias(const std::vector<float>& bias, std::string& err) 
 
 bool Verifier::init(const WeightTable& wt, const ModelGeometry& g, SessionState& ss, const VerifyHits& hits,
                     const NativeHead* head, int max_t, std::string& err) {
+#if defined(STRATA_USE_HIP) && defined(__linux__)
+    // Reject unknown config before this context allocates or registers any GPU state.
+    evo_topk_config_ = strata::kernels::evo_topk::parse(std::getenv("STRATA_EVO_TOPK_MODE"),
+                                                      std::getenv("STRATA_EVO_TOPK_MIN_TOKENS"));
+    if (!evo_topk_config_.valid) {
+        err = "verify: invalid STRATA_EVO_TOPK_MODE or STRATA_EVO_TOPK_MIN_TOKENS";
+        return false;
+    }
+#endif
     g_diag_verifier.store(this);
     diag_verify_fn().store(&diag_active_verifier);
     for (auto& slot : g_live) {
@@ -946,6 +962,21 @@ bool Verifier::init(const WeightTable& wt, const ModelGeometry& g, SessionState&
     cap_ = strata::kernels::qsa_selection_width(strata::kernels::kTopkMaxCells, s);
     max_blocks_ = ss.qsa_states[ss.qsa_primary()].max_cells / s.idx_block + 2;
     attn_scratch_floats_ = (int64_t) strata::kernels::qsa_decode_attn_scratch_floats(cap_, s);
+#if defined(STRATA_USE_HIP) && defined(__linux__)
+    if (evo_topk_config_.split) {
+        if (std::getenv("STRATA_TOPK_OLD")) evo_topk_reason_ = "original-kernel-requested";
+        else if (!strata::kernels::qsa_evo_topk_device_supported()) evo_topk_reason_ = "unsupported-device";
+        else if (lb_ != 0 || le_ != g.n_layers) evo_topk_reason_ = "layer-split";
+        else if (s.idx_block != 4 || s.idx_dim != 128 || s.idx_n_head != 4) evo_topk_reason_ = "unsupported-geometry";
+        else {
+            evo_topk_scratch_.capacity = strata::kernels::evo_topk::layout(std::min(max_t, 16), max_blocks_);
+            evo_topk_reason_ = evo_topk_scratch_.capacity ? "eligible-unqualified" : "unsupported-capacity";
+        }
+        std::fprintf(stderr, "strata verify: EVO split top-k candidate: %s, scratch %zu bytes, pos0 threshold %lld; "
+                             "only pre-captured window graphs; batched-slot graphs keep register; NOT qualified\n",
+                     evo_topk_reason_, evo_topk_scratch_.capacity.bytes, (long long) evo_topk_config_.min_tokens);
+    }
+#endif
 
     const uint64_t T = (uint64_t) max_t, N = (uint64_t) g.n_embd, HC = (uint64_t) g.hc, K = (uint64_t) ss.k;
     const uint64_t C = (uint64_t) g.ssm_conv_channels, ZV = (uint64_t) g.ssm_value_dim, HV = (uint64_t) g.ssm_v_heads;
@@ -1085,6 +1116,10 @@ bool Verifier::init(const WeightTable& wt, const ModelGeometry& g, SessionState&
         scores_ = b.take<float>(T * (uint64_t) max_blocks_); sel_ = b.take<int32_t>(T * (uint64_t) cap_);
         if (select_long_on() && strata::kernels::qsa_topk_multi_scratch_ints(T) > 0)   // STRATA_SELECT_LONG only
             topk_scratch_ = b.take<int32_t>((uint64_t) strata::kernels::qsa_topk_multi_scratch_ints(T));
+#if defined(STRATA_USE_HIP) && defined(__linux__)
+        if (evo_topk_scratch_.capacity)
+            evo_topk_scratch_.data = b.take<int32_t>(evo_topk_scratch_.capacity.bytes / sizeof(int32_t));
+#endif
         attn_ = b.take<float>(T * NH * HD); attn32_ = b.take<float>(T * NH * HD);
         attn_scratch_ = b.take<float>(T * (uint64_t) attn_scratch_floats_);
         tail_snap_ = b.take<float>(nQ * TS);
@@ -1909,6 +1944,19 @@ bool Verifier::record_window(int T, cudaStream_t cs, std::string& err) {
                         }
                 };
                 auto idx_select = [&](cudaStream_t ns) {
+#if defined(STRATA_USE_HIP) && defined(__linux__)
+                    if (sel_long_ && evo_topk_scratch_.data) {
+                        // Same scorer as variant 0. This candidate changes only selection.
+                        qsa_block_scores(st.idx_pooled, st.idx_dead, qidx_ + tb * IQ * ID, step_ + tb * kStepCount, n,
+                                         max_blocks_, s, scores_ + (size_t) tb * max_blocks_, ns);
+                        if (!qsa_block_topk_evo_split(scores_ + (size_t) tb * max_blocks_, step_ + tb * kStepCount,
+                                                     n, max_blocks_, cap_, s, sel_ + (size_t) tb * cap_, ns,
+                                                     evo_topk_scratch_))
+                            qsa_block_topk(scores_ + (size_t) tb * max_blocks_, step_ + tb * kStepCount, n,
+                                           max_blocks_, cap_, s, sel_ + (size_t) tb * cap_, ns);
+                        return;
+                    }
+#endif
                     if (sel_long_) {   // STRATA_SELECT_LONG: the long-context window graphs (the same ids)
                         qsa_block_scores_long(st.idx_pooled, st.idx_dead, qidx_ + tb * IQ * ID, step_ + tb * kStepCount, n,
                                               max_blocks_, s, scores_ + (size_t) tb * max_blocks_, ns, -1);
@@ -2749,6 +2797,24 @@ void Verifier::refresh_ar() {
     }
 }
 
+#if defined(STRATA_USE_HIP) && defined(__linux__)
+int Verifier::evo_topk_variant(int T, int64_t pos0) {
+    if (!evo_topk_scratch_.data || T < 1 || T > evo_topk_scratch_.capacity.queries) return 0;
+    if (!strata::kernels::evo_topk::wants_split(evo_topk_config_, pos0)) {
+        ++evo_topk_below_;
+        return 0;
+    }
+    // Never capture a new split graph at a request's threshold crossing. A warmup
+    // caller must capture_all first. Evicted/missing variants fall back before capture.
+    if ((ar_off_ ? exec_nr_[1][T] : exec_[1][T]) == nullptr) {
+        ++evo_topk_unprepared_;
+        return 0;
+    }
+    ++evo_topk_selected_;
+    return 1;
+}
+#endif
+
 bool Verifier::capture(int T, std::string& err) {
     const auto cap_t0 = std::chrono::steady_clock::now();
     cudaGraphExec_t& exec_t = ar_off_ ? exec_nr_[sel_long_][T] : exec_[sel_long_][T];
@@ -3201,7 +3267,10 @@ bool Verifier::chain_overlap() const {
 bool Verifier::prelaunch(int T, const int32_t* tokens, int64_t pos0, std::string& err) {
     const OnDevice on_device(device_);
     prelaunched_ = 0;
-    sel_long_ = select_long_on() && pos0 + T >= select_long_at() ? 1 : 0;   // the variant the previous stage captured
+    sel_long_ = select_long_on() && pos0 + T >= select_long_at() ? 1 : 0;
+#if defined(STRATA_USE_HIP) && defined(__linux__)
+    sel_long_ = evo_topk_variant(T, pos0);
+#endif
     cudaGraphExec_t exec_t = ar_off_ ? exec_nr_[sel_long_][T] : exec_[sel_long_][T];   // #871: the variant the previous stage refreshed
     if (T < 1 || T > max_t_ || exec_t == nullptr) { err = "verify: prelaunch before the window was captured"; return false; }
     if (released_.load()) { err = "verify: an earlier window never finished on the GPU (#267); restart the engine"; return false; }
@@ -3276,6 +3345,9 @@ bool Verifier::run(int T, const int32_t* tokens, int64_t pos0, PoolMultiFn pool,
     if (!pre) refresh_ar();
     // STRATA_SELECT_LONG: the select kernels this window's context pays off with (the same on every stage)
     sel_long_ = select_long_on() && pos0 + T >= select_long_at() ? 1 : 0;
+#if defined(STRATA_USE_HIP) && defined(__linux__)
+    sel_long_ = evo_topk_variant(T, pos0);
+#endif
     if (!capture(T, err) || !capture_commit(err)) return false;
     const bool chain = chain_overlap();
     if (chain) {   // capture the next stage's window here, on this thread, so the helper only stages and launches
@@ -5177,10 +5249,18 @@ bool Verifier::capture_all(std::string& err) {
     } no_evict(no_window_eviction_);
     // STRATA_SELECT_LONG: both select variants (see select_long_at): pl_launch takes the one its window's context
     // needs, and nothing can be captured once pipelined windows are in flight.  Without it only [0]
-    for (int sl = 0; sl < (select_long_on() ? 2 : 1); ++sl) {
+    int select_variants = select_long_on() ? 2 : 1;
+#if defined(STRATA_USE_HIP) && defined(__linux__)
+    if (evo_topk_scratch_.data) select_variants = 2;
+#endif
+    for (int sl = 0; sl < select_variants; ++sl) {
         sel_long_ = sl;
-        for (int T = 1; T <= max_t_; ++T)
+        for (int T = 1; T <= max_t_; ++T) {
+#if defined(STRATA_USE_HIP) && defined(__linux__)
+            if (sl == 1 && T > evo_topk_scratch_.capacity.queries) continue;
+#endif
             if (!capture(T, err)) return false;
+        }
     }
     sel_long_ = 0;
     if (!capture_commit(err)) return false;
@@ -5237,7 +5317,10 @@ bool Verifier::pl_launch(int T, const int32_t* tokens, int64_t pos0, std::string
     if (T < 1 || T > max_t_ || T > strata::kernels::kVerifyMaxT) { err = "verify: window size out of range"; return false; }
     SessionState& ss = *ss_;
     if (pos0 + T > ss.qsa_states[ss.qsa_primary()].max_cells) { err = "verify: the window runs past the context"; return false; }
-    const int sl = select_long_on() && pos0 + T >= select_long_at() ? 1 : 0;   // the variant this window's context pays off with
+    int sl = select_long_on() && pos0 + T >= select_long_at() ? 1 : 0;
+#if defined(STRATA_USE_HIP) && defined(__linux__)
+    sl = evo_topk_variant(T, pos0);
+#endif
     if (exec_[sl][T] == nullptr || commit_exec_ == nullptr || ev_done_ == nullptr || pl_ple_rows_.empty()) {
         err = "verify: pipelined window not prepared (capture_all)";
         return false;

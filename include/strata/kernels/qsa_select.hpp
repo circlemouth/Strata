@@ -18,10 +18,23 @@
 #pragma once
 
 #include "strata/kernels/qsa.hpp"
+#include "strata/kernels/qsa_evo_topk.hpp"
 
 #include <cstdint>
 
 namespace strata::kernels {
+
+/// Experimental Linux HIP gfx1151 integrated wave32 candidate. No CUDA path is changed.
+/// Query capability before allocating/capture; false elsewhere or with an architecture override.
+bool qsa_evo_topk_device_supported();
+/// True means the split kernels were enqueued. False means no split work was enqueued:
+/// caller must run qsa_block_topk. Errors after enqueue are fatal, never a partial fallback.
+/// Every call resets the full scratch on its stream. Scratch must outlive graph executions;
+/// concurrent contexts require separate allocations. Steps retain qsa_block_topk's valid-input
+/// contract (n_bid = n_kv / idx_block, n_bid < max_blocks, width <= cap).
+bool qsa_block_topk_evo_split(const float* scores, const int32_t* steps, int64_t nq,
+                             int64_t max_blocks, int64_t cap, const QsaShapes& shapes,
+                             int32_t* ids, void* stream, const QsaTopkScratch& scratch);
 
 /// scores [nq, max_blocks]; q_idx [nq, idx_n_head, idx_dim] (normed and rotated); steps [nq, kStepCount].
 /// Batch windows: query q's own indexer keys - pooled[q], dead[q] (q < n <= 8).

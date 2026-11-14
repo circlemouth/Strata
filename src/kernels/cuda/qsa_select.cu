@@ -5,6 +5,7 @@
 #include <cstdlib>
 #include <cstring>
 #include "strata/kernels/qsa_select.hpp"
+#include "strata/kernels/qsa_evo_topk.hpp"
 #include "strata/kernels/qsa_two_pass.hpp"
 #include "strata/kernels/qsa_two_pass_status.hpp"
 #include "strata/kernels/gfx_arch.hpp"
@@ -33,6 +34,8 @@ __device__ __forceinline__ uint32_t order_key(float s) {
     const uint32_t b = __float_as_uint(v);
     return (b & 0x80000000u) ? ~b : (b | 0x80000000u);
 }
+
+#include "qsa_evo_topk.cuh"
 
 __global__ void __launch_bounds__(SCORE_WARPS * 32) block_scores_kernel(const float* __restrict__ pooled,
                                                                         const float* __restrict__ dead,
@@ -3107,6 +3110,69 @@ static bool qsa_block_topk_multi(const float* scores, const int32_t* steps, int6
 
 // ---- STRATA_SELECT_LONG (verify.cpp, opt-in): the decode select past ~64K cells.  Outside the SM60 build (and on HIP)
 // these are the plain calls; the scratch is never asked for.
+bool qsa_evo_topk_device_supported() {
+#if defined(__HIPCC__) && defined(__linux__)
+    int dev = -1, count = 0;
+    cudaDeviceProp props{};
+    if (cudaGetDevice(&dev) != cudaSuccess || cudaGetDeviceCount(&count) != cudaSuccess ||
+        cudaGetDeviceProperties(&props, dev) != cudaSuccess) return false;
+    const char* override_arch = std::getenv("HSA_OVERRIDE_GFX_VERSION");
+    return evo_topk::device_matches(true, true, props.gcnArchName, props.integrated != 0,
+                                   props.warpSize, count, override_arch && *override_arch);
+#else
+    return false;
+#endif
+}
+
+bool qsa_block_topk_evo_split(const float* scores, const int32_t* steps, int64_t nq,
+                             int64_t max_blocks, int64_t cap, const QsaShapes& shapes,
+                             int32_t* ids, void* stream, const QsaTopkScratch& scratch) {
+#if defined(__HIPCC__) && defined(__linux__)
+    if (!scores || !steps || !ids || !scratch.fits(nq, max_blocks) ||
+        reinterpret_cast<std::uintptr_t>(scores) % alignof(float) ||
+        reinterpret_cast<std::uintptr_t>(steps) % alignof(int32_t) ||
+        reinterpret_cast<std::uintptr_t>(ids) % alignof(int32_t) ||
+        shapes.idx_dim != IDX_DIM || shapes.idx_n_head != IDX_HEADS || shapes.idx_block != R ||
+        cap < qsa_selection_width(kTopkMaxCells, shapes) || !qsa_evo_topk_device_supported()) return false;
+    // Respect the existing explicit request for the original kernel.
+    if (std::getenv("STRATA_TOPK_OLD")) return false;
+    const auto& a = scratch.capacity;
+    uint8_t* base = reinterpret_cast<uint8_t*>(scratch.data);
+    const evo_split::SplitScratch d{scratch.data, reinterpret_cast<int32_t*>(base + a.state_offset),
+                                   reinterpret_cast<int32_t*>(base + a.count_offset), a.queries, a.chunks};
+    const cudaStream_t st = (cudaStream_t) stream;
+    // Reset hist, state AND counts, including padding and inactive query/chunk capacity.
+    // This memset is recorded in the graph, so every replay is independent of old requests.
+    const cudaError_t reset = cudaMemsetAsync(scratch.data, 0, a.bytes, st);
+    if (reset != cudaSuccess) {
+        std::fprintf(stderr, "qsa evo topk reset: %s\n", cudaGetErrorString(reset));
+        std::exit(1);  // capture/stream state after a runtime error is not safe for fallback
+    }
+    const dim3 grid((unsigned) ((max_blocks + evo_topk::kChunkBlocks - 1) / evo_topk::kChunkBlocks), (unsigned) nq);
+    auto check_launch = [] {
+        const cudaError_t e = cudaGetLastError();
+        if (e != cudaSuccess) { std::fprintf(stderr, "qsa evo topk split: %s\n", cudaGetErrorString(e)); std::exit(1); }
+    };
+    evo_split::evo_topk_split_hist_kernel<0><<<grid, evo_split::SP_T, 0, st>>>(scores, steps, max_blocks, d);
+    check_launch();
+    evo_split::evo_topk_split_hist_kernel<1><<<grid, evo_split::SP_T, 0, st>>>(scores, steps, max_blocks, d);
+    check_launch();
+    evo_split::evo_topk_split_hist_kernel<2><<<grid, evo_split::SP_T, 0, st>>>(scores, steps, max_blocks, d);
+    check_launch();
+    evo_split::evo_topk_split_hist_kernel<3><<<grid, evo_split::SP_T, 0, st>>>(scores, steps, max_blocks, d);
+    check_launch();
+    evo_split::evo_topk_split_count_kernel<<<grid, evo_split::SP_T, 0, st>>>(scores, steps, max_blocks, d);
+    check_launch();
+    evo_split::evo_topk_split_emit_kernel<<<grid, evo_split::SP_T, 0, st>>>(scores, steps, max_blocks, cap, ids, d);
+    check_launch();
+    return true;
+#else
+    (void) scores; (void) steps; (void) nq; (void) max_blocks; (void) cap; (void) shapes;
+    (void) ids; (void) stream; (void) scratch;
+    return false;
+#endif
+}
+
 int64_t qsa_topk_multi_scratch_ints(int64_t nq) {
 #if !defined(__HIPCC__) && defined(STRATA_EXPERIMENTAL_SM60)
     return (nq < MT_MAXQ ? nq : MT_MAXQ) * (int64_t) MT_Q_INTS;
