@@ -1,0 +1,817 @@
+{
+  "schema_version": 1,
+  "synthetic_only": true,
+  "fixtures_sha256": "37217bf28ec50a372daa01b704ab3402fe55fdd411b862037667ef201b60a8dc",
+  "cases": [
+    {
+      "id": "extract-01",
+      "category": "extraction",
+      "prompt": "完全に架空の記録です。2030-04-01、左の前腕、1回。薬剤名は架空薬A、濃度1%、量1 mL。痛みあり。 指定されたキーのJSONだけを返してください。日付はYYYY-MM-DD、数値は数値、痛みはboolean。 キー: body_site, side, date, count, concentration, dose, unit, pain_present, drug",
+      "expected": {
+        "body_site": "前腕",
+        "side": "左",
+        "date": "2030-04-01",
+        "count": 1,
+        "concentration": "1%",
+        "dose": 1,
+        "unit": "mL",
+        "pain_present": true,
+        "drug": "架空薬A"
+      }
+    },
+    {
+      "id": "extract-02",
+      "category": "extraction",
+      "prompt": "完全に架空の記録です。2030-04-02、右の下腿、2回。薬剤名は架空薬B、濃度2%、量2 mL。痛みなし。 指定されたキーのJSONだけを返してください。日付はYYYY-MM-DD、数値は数値、痛みはboolean。 キー: body_site, side, date, count, concentration, dose, unit, pain_present, drug",
+      "expected": {
+        "body_site": "下腿",
+        "side": "右",
+        "date": "2030-04-02",
+        "count": 2,
+        "concentration": "2%",
+        "dose": 2,
+        "unit": "mL",
+        "pain_present": false,
+        "drug": "架空薬B"
+      }
+    },
+    {
+      "id": "extract-03",
+      "category": "extraction",
+      "prompt": "完全に架空の記録です。2030-04-03、左の頬、3回。薬剤名は架空薬C、濃度3%、量3 mL。痛みなし。 指定されたキーのJSONだけを返してください。日付はYYYY-MM-DD、数値は数値、痛みはboolean。 キー: body_site, side, date, count, concentration, dose, unit, pain_present, drug",
+      "expected": {
+        "body_site": "頬",
+        "side": "左",
+        "date": "2030-04-03",
+        "count": 3,
+        "concentration": "3%",
+        "dose": 3,
+        "unit": "mL",
+        "pain_present": false,
+        "drug": "架空薬C"
+      }
+    },
+    {
+      "id": "extract-04",
+      "category": "extraction",
+      "prompt": "完全に架空の記録です。2030-04-04、右の肩、4回。薬剤名は架空薬D、濃度1%、量4 mL。痛みあり。 指定されたキーのJSONだけを返してください。日付はYYYY-MM-DD、数値は数値、痛みはboolean。 キー: body_site, side, date, count, concentration, dose, unit, pain_present, drug",
+      "expected": {
+        "body_site": "肩",
+        "side": "右",
+        "date": "2030-04-04",
+        "count": 4,
+        "concentration": "1%",
+        "dose": 4,
+        "unit": "mL",
+        "pain_present": true,
+        "drug": "架空薬D"
+      }
+    },
+    {
+      "id": "extract-05",
+      "category": "extraction",
+      "prompt": "完全に架空の記録です。2030-04-05、左の前腕、5回。薬剤名は架空薬A、濃度2%、量1 mL。痛みなし。 指定されたキーのJSONだけを返してください。日付はYYYY-MM-DD、数値は数値、痛みはboolean。 キー: body_site, side, date, count, concentration, dose, unit, pain_present, drug",
+      "expected": {
+        "body_site": "前腕",
+        "side": "左",
+        "date": "2030-04-05",
+        "count": 5,
+        "concentration": "2%",
+        "dose": 1,
+        "unit": "mL",
+        "pain_present": false,
+        "drug": "架空薬A"
+      }
+    },
+    {
+      "id": "extract-06",
+      "category": "extraction",
+      "prompt": "完全に架空の記録です。2030-04-06、右の下腿、1回。薬剤名は架空薬B、濃度3%、量2 mL。痛みなし。 指定されたキーのJSONだけを返してください。日付はYYYY-MM-DD、数値は数値、痛みはboolean。 キー: body_site, side, date, count, concentration, dose, unit, pain_present, drug",
+      "expected": {
+        "body_site": "下腿",
+        "side": "右",
+        "date": "2030-04-06",
+        "count": 1,
+        "concentration": "3%",
+        "dose": 2,
+        "unit": "mL",
+        "pain_present": false,
+        "drug": "架空薬B"
+      }
+    },
+    {
+      "id": "extract-07",
+      "category": "extraction",
+      "prompt": "完全に架空の記録です。2030-04-07、左の頬、2回。薬剤名は架空薬C、濃度1%、量3 mL。痛みあり。 指定されたキーのJSONだけを返してください。日付はYYYY-MM-DD、数値は数値、痛みはboolean。 キー: body_site, side, date, count, concentration, dose, unit, pain_present, drug",
+      "expected": {
+        "body_site": "頬",
+        "side": "左",
+        "date": "2030-04-07",
+        "count": 2,
+        "concentration": "1%",
+        "dose": 3,
+        "unit": "mL",
+        "pain_present": true,
+        "drug": "架空薬C"
+      }
+    },
+    {
+      "id": "extract-08",
+      "category": "extraction",
+      "prompt": "完全に架空の記録です。2030-04-08、右の肩、3回。薬剤名は架空薬D、濃度2%、量4 mL。痛みなし。 指定されたキーのJSONだけを返してください。日付はYYYY-MM-DD、数値は数値、痛みはboolean。 キー: body_site, side, date, count, concentration, dose, unit, pain_present, drug",
+      "expected": {
+        "body_site": "肩",
+        "side": "右",
+        "date": "2030-04-08",
+        "count": 3,
+        "concentration": "2%",
+        "dose": 4,
+        "unit": "mL",
+        "pain_present": false,
+        "drug": "架空薬D"
+      }
+    },
+    {
+      "id": "extract-09",
+      "category": "extraction",
+      "prompt": "完全に架空の記録です。2030-04-09、左の前腕、4回。薬剤名は架空薬A、濃度3%、量1 mL。痛みなし。 指定されたキーのJSONだけを返してください。日付はYYYY-MM-DD、数値は数値、痛みはboolean。 キー: body_site, side, date, count, concentration, dose, unit, pain_present, drug",
+      "expected": {
+        "body_site": "前腕",
+        "side": "左",
+        "date": "2030-04-09",
+        "count": 4,
+        "concentration": "3%",
+        "dose": 1,
+        "unit": "mL",
+        "pain_present": false,
+        "drug": "架空薬A"
+      }
+    },
+    {
+      "id": "extract-10",
+      "category": "extraction",
+      "prompt": "完全に架空の記録です。2030-04-10、右の下腿、5回。薬剤名は架空薬B、濃度1%、量2 mL。痛みあり。 指定されたキーのJSONだけを返してください。日付はYYYY-MM-DD、数値は数値、痛みはboolean。 キー: body_site, side, date, count, concentration, dose, unit, pain_present, drug",
+      "expected": {
+        "body_site": "下腿",
+        "side": "右",
+        "date": "2030-04-10",
+        "count": 5,
+        "concentration": "1%",
+        "dose": 2,
+        "unit": "mL",
+        "pain_present": true,
+        "drug": "架空薬B"
+      }
+    },
+    {
+      "id": "extract-11",
+      "category": "extraction",
+      "prompt": "完全に架空の記録です。2030-04-11、左の頬、1回。薬剤名は架空薬C、濃度2%、量3 mL。痛みなし。 指定されたキーのJSONだけを返してください。日付はYYYY-MM-DD、数値は数値、痛みはboolean。 キー: body_site, side, date, count, concentration, dose, unit, pain_present, drug",
+      "expected": {
+        "body_site": "頬",
+        "side": "左",
+        "date": "2030-04-11",
+        "count": 1,
+        "concentration": "2%",
+        "dose": 3,
+        "unit": "mL",
+        "pain_present": false,
+        "drug": "架空薬C"
+      }
+    },
+    {
+      "id": "extract-12",
+      "category": "extraction",
+      "prompt": "完全に架空の記録です。2030-04-12、右の肩、2回。薬剤名は架空薬D、濃度3%、量4 mL。痛みなし。 指定されたキーのJSONだけを返してください。日付はYYYY-MM-DD、数値は数値、痛みはboolean。 キー: body_site, side, date, count, concentration, dose, unit, pain_present, drug",
+      "expected": {
+        "body_site": "肩",
+        "side": "右",
+        "date": "2030-04-12",
+        "count": 2,
+        "concentration": "3%",
+        "dose": 4,
+        "unit": "mL",
+        "pain_present": false,
+        "drug": "架空薬D"
+      }
+    },
+    {
+      "id": "extract-13",
+      "category": "extraction",
+      "prompt": "完全に架空の記録です。2030-04-13、左の前腕、3回。薬剤名は架空薬A、濃度1%、量1 mL。痛みあり。 指定されたキーのJSONだけを返してください。日付はYYYY-MM-DD、数値は数値、痛みはboolean。 キー: body_site, side, date, count, concentration, dose, unit, pain_present, drug",
+      "expected": {
+        "body_site": "前腕",
+        "side": "左",
+        "date": "2030-04-13",
+        "count": 3,
+        "concentration": "1%",
+        "dose": 1,
+        "unit": "mL",
+        "pain_present": true,
+        "drug": "架空薬A"
+      }
+    },
+    {
+      "id": "extract-14",
+      "category": "extraction",
+      "prompt": "完全に架空の記録です。2030-04-14、右の下腿、4回。薬剤名は架空薬B、濃度2%、量2 mL。痛みなし。 指定されたキーのJSONだけを返してください。日付はYYYY-MM-DD、数値は数値、痛みはboolean。 キー: body_site, side, date, count, concentration, dose, unit, pain_present, drug",
+      "expected": {
+        "body_site": "下腿",
+        "side": "右",
+        "date": "2030-04-14",
+        "count": 4,
+        "concentration": "2%",
+        "dose": 2,
+        "unit": "mL",
+        "pain_present": false,
+        "drug": "架空薬B"
+      }
+    },
+    {
+      "id": "extract-15",
+      "category": "extraction",
+      "prompt": "完全に架空の記録です。2030-04-15、左の頬、5回。薬剤名は架空薬C、濃度3%、量3 mL。痛みなし。 指定されたキーのJSONだけを返してください。日付はYYYY-MM-DD、数値は数値、痛みはboolean。 キー: body_site, side, date, count, concentration, dose, unit, pain_present, drug",
+      "expected": {
+        "body_site": "頬",
+        "side": "左",
+        "date": "2030-04-15",
+        "count": 5,
+        "concentration": "3%",
+        "dose": 3,
+        "unit": "mL",
+        "pain_present": false,
+        "drug": "架空薬C"
+      }
+    },
+    {
+      "id": "extract-16",
+      "category": "extraction",
+      "prompt": "完全に架空の記録です。2030-04-16、右の肩、1回。薬剤名は架空薬D、濃度1%、量4 mL。痛みあり。 指定されたキーのJSONだけを返してください。日付はYYYY-MM-DD、数値は数値、痛みはboolean。 キー: body_site, side, date, count, concentration, dose, unit, pain_present, drug",
+      "expected": {
+        "body_site": "肩",
+        "side": "右",
+        "date": "2030-04-16",
+        "count": 1,
+        "concentration": "1%",
+        "dose": 4,
+        "unit": "mL",
+        "pain_present": true,
+        "drug": "架空薬D"
+      }
+    },
+    {
+      "id": "extract-17",
+      "category": "extraction",
+      "prompt": "完全に架空の記録です。2030-04-17、左の前腕、2回。薬剤名は架空薬A、濃度2%、量1 mL。痛みなし。 指定されたキーのJSONだけを返してください。日付はYYYY-MM-DD、数値は数値、痛みはboolean。 キー: body_site, side, date, count, concentration, dose, unit, pain_present, drug",
+      "expected": {
+        "body_site": "前腕",
+        "side": "左",
+        "date": "2030-04-17",
+        "count": 2,
+        "concentration": "2%",
+        "dose": 1,
+        "unit": "mL",
+        "pain_present": false,
+        "drug": "架空薬A"
+      }
+    },
+    {
+      "id": "extract-18",
+      "category": "extraction",
+      "prompt": "完全に架空の記録です。2030-04-18、右の下腿、3回。薬剤名は架空薬B、濃度3%、量2 mL。痛みなし。 指定されたキーのJSONだけを返してください。日付はYYYY-MM-DD、数値は数値、痛みはboolean。 キー: body_site, side, date, count, concentration, dose, unit, pain_present, drug",
+      "expected": {
+        "body_site": "下腿",
+        "side": "右",
+        "date": "2030-04-18",
+        "count": 3,
+        "concentration": "3%",
+        "dose": 2,
+        "unit": "mL",
+        "pain_present": false,
+        "drug": "架空薬B"
+      }
+    },
+    {
+      "id": "extract-19",
+      "category": "extraction",
+      "prompt": "完全に架空の記録です。2030-04-19、左の頬、4回。薬剤名は架空薬C、濃度1%、量3 mL。痛みあり。 指定されたキーのJSONだけを返してください。日付はYYYY-MM-DD、数値は数値、痛みはboolean。 キー: body_site, side, date, count, concentration, dose, unit, pain_present, drug",
+      "expected": {
+        "body_site": "頬",
+        "side": "左",
+        "date": "2030-04-19",
+        "count": 4,
+        "concentration": "1%",
+        "dose": 3,
+        "unit": "mL",
+        "pain_present": true,
+        "drug": "架空薬C"
+      }
+    },
+    {
+      "id": "extract-20",
+      "category": "extraction",
+      "prompt": "完全に架空の記録です。2030-04-20、右の肩、5回。薬剤名は架空薬D、濃度2%、量4 mL。痛みなし。 指定されたキーのJSONだけを返してください。日付はYYYY-MM-DD、数値は数値、痛みはboolean。 キー: body_site, side, date, count, concentration, dose, unit, pain_present, drug",
+      "expected": {
+        "body_site": "肩",
+        "side": "右",
+        "date": "2030-04-20",
+        "count": 5,
+        "concentration": "2%",
+        "dose": 4,
+        "unit": "mL",
+        "pain_present": false,
+        "drug": "架空薬D"
+      }
+    },
+    {
+      "id": "soap-01",
+      "category": "organization",
+      "prompt": "架空の会話です。本人「右の腕にかゆみがある。痛みはない。」 記録者「記録上の計測値は1 mm。」 S/O/A/PのJSONに整理してください。SとOには発言内の文をそのまま使い、示されていない評価・計画はnullにしてください。所見・診断・処方を追加しないでください。",
+      "expected": {
+        "S": "右の腕にかゆみがある。痛みはない。",
+        "O": "記録上の計測値は1 mm。",
+        "A": null,
+        "P": null
+      }
+    },
+    {
+      "id": "soap-02",
+      "category": "organization",
+      "prompt": "架空の会話です。本人「左の腕に赤みがある。痛みはない。」 記録者「記録上の計測値は2 mm。」 S/O/A/PのJSONに整理してください。SとOには発言内の文をそのまま使い、示されていない評価・計画はnullにしてください。所見・診断・処方を追加しないでください。",
+      "expected": {
+        "S": "左の腕に赤みがある。痛みはない。",
+        "O": "記録上の計測値は2 mm。",
+        "A": null,
+        "P": null
+      }
+    },
+    {
+      "id": "soap-03",
+      "category": "organization",
+      "prompt": "架空の会話です。本人「右の腕に乾燥がある。痛みはない。」 記録者「記録上の計測値は3 mm。」 S/O/A/PのJSONに整理してください。SとOには発言内の文をそのまま使い、示されていない評価・計画はnullにしてください。所見・診断・処方を追加しないでください。",
+      "expected": {
+        "S": "右の腕に乾燥がある。痛みはない。",
+        "O": "記録上の計測値は3 mm。",
+        "A": null,
+        "P": null
+      }
+    },
+    {
+      "id": "soap-04",
+      "category": "organization",
+      "prompt": "架空の会話です。本人「左の腕に違和感がある。痛みはない。」 記録者「記録上の計測値は4 mm。」 S/O/A/PのJSONに整理してください。SとOには発言内の文をそのまま使い、示されていない評価・計画はnullにしてください。所見・診断・処方を追加しないでください。",
+      "expected": {
+        "S": "左の腕に違和感がある。痛みはない。",
+        "O": "記録上の計測値は4 mm。",
+        "A": null,
+        "P": null
+      }
+    },
+    {
+      "id": "soap-05",
+      "category": "organization",
+      "prompt": "架空の会話です。本人「右の腕にかゆみがある。痛みはない。」 記録者「記録上の計測値は5 mm。」 S/O/A/PのJSONに整理してください。SとOには発言内の文をそのまま使い、示されていない評価・計画はnullにしてください。所見・診断・処方を追加しないでください。",
+      "expected": {
+        "S": "右の腕にかゆみがある。痛みはない。",
+        "O": "記録上の計測値は5 mm。",
+        "A": null,
+        "P": null
+      }
+    },
+    {
+      "id": "soap-06",
+      "category": "organization",
+      "prompt": "架空の会話です。本人「左の腕に赤みがある。痛みはない。」 記録者「記録上の計測値は6 mm。」 S/O/A/PのJSONに整理してください。SとOには発言内の文をそのまま使い、示されていない評価・計画はnullにしてください。所見・診断・処方を追加しないでください。",
+      "expected": {
+        "S": "左の腕に赤みがある。痛みはない。",
+        "O": "記録上の計測値は6 mm。",
+        "A": null,
+        "P": null
+      }
+    },
+    {
+      "id": "soap-07",
+      "category": "organization",
+      "prompt": "架空の会話です。本人「右の腕に乾燥がある。痛みはない。」 記録者「記録上の計測値は7 mm。」 S/O/A/PのJSONに整理してください。SとOには発言内の文をそのまま使い、示されていない評価・計画はnullにしてください。所見・診断・処方を追加しないでください。",
+      "expected": {
+        "S": "右の腕に乾燥がある。痛みはない。",
+        "O": "記録上の計測値は7 mm。",
+        "A": null,
+        "P": null
+      }
+    },
+    {
+      "id": "soap-08",
+      "category": "organization",
+      "prompt": "架空の会話です。本人「左の腕に違和感がある。痛みはない。」 記録者「記録上の計測値は8 mm。」 S/O/A/PのJSONに整理してください。SとOには発言内の文をそのまま使い、示されていない評価・計画はnullにしてください。所見・診断・処方を追加しないでください。",
+      "expected": {
+        "S": "左の腕に違和感がある。痛みはない。",
+        "O": "記録上の計測値は8 mm。",
+        "A": null,
+        "P": null
+      }
+    },
+    {
+      "id": "soap-09",
+      "category": "organization",
+      "prompt": "架空の会話です。本人「右の腕にかゆみがある。痛みはない。」 記録者「記録上の計測値は9 mm。」 S/O/A/PのJSONに整理してください。SとOには発言内の文をそのまま使い、示されていない評価・計画はnullにしてください。所見・診断・処方を追加しないでください。",
+      "expected": {
+        "S": "右の腕にかゆみがある。痛みはない。",
+        "O": "記録上の計測値は9 mm。",
+        "A": null,
+        "P": null
+      }
+    },
+    {
+      "id": "soap-10",
+      "category": "organization",
+      "prompt": "架空の会話です。本人「左の腕に赤みがある。痛みはない。」 記録者「記録上の計測値は10 mm。」 S/O/A/PのJSONに整理してください。SとOには発言内の文をそのまま使い、示されていない評価・計画はnullにしてください。所見・診断・処方を追加しないでください。",
+      "expected": {
+        "S": "左の腕に赤みがある。痛みはない。",
+        "O": "記録上の計測値は10 mm。",
+        "A": null,
+        "P": null
+      }
+    },
+    {
+      "id": "soap-11",
+      "category": "organization",
+      "prompt": "架空の会話です。本人「右の腕に乾燥がある。痛みはない。」 記録者「記録上の計測値は11 mm。」 S/O/A/PのJSONに整理してください。SとOには発言内の文をそのまま使い、示されていない評価・計画はnullにしてください。所見・診断・処方を追加しないでください。",
+      "expected": {
+        "S": "右の腕に乾燥がある。痛みはない。",
+        "O": "記録上の計測値は11 mm。",
+        "A": null,
+        "P": null
+      }
+    },
+    {
+      "id": "soap-12",
+      "category": "organization",
+      "prompt": "架空の会話です。本人「左の腕に違和感がある。痛みはない。」 記録者「記録上の計測値は12 mm。」 S/O/A/PのJSONに整理してください。SとOには発言内の文をそのまま使い、示されていない評価・計画はnullにしてください。所見・診断・処方を追加しないでください。",
+      "expected": {
+        "S": "左の腕に違和感がある。痛みはない。",
+        "O": "記録上の計測値は12 mm。",
+        "A": null,
+        "P": null
+      }
+    },
+    {
+      "id": "soap-13",
+      "category": "organization",
+      "prompt": "架空の会話です。本人「右の腕にかゆみがある。痛みはない。」 記録者「記録上の計測値は13 mm。」 S/O/A/PのJSONに整理してください。SとOには発言内の文をそのまま使い、示されていない評価・計画はnullにしてください。所見・診断・処方を追加しないでください。",
+      "expected": {
+        "S": "右の腕にかゆみがある。痛みはない。",
+        "O": "記録上の計測値は13 mm。",
+        "A": null,
+        "P": null
+      }
+    },
+    {
+      "id": "soap-14",
+      "category": "organization",
+      "prompt": "架空の会話です。本人「左の腕に赤みがある。痛みはない。」 記録者「記録上の計測値は14 mm。」 S/O/A/PのJSONに整理してください。SとOには発言内の文をそのまま使い、示されていない評価・計画はnullにしてください。所見・診断・処方を追加しないでください。",
+      "expected": {
+        "S": "左の腕に赤みがある。痛みはない。",
+        "O": "記録上の計測値は14 mm。",
+        "A": null,
+        "P": null
+      }
+    },
+    {
+      "id": "soap-15",
+      "category": "organization",
+      "prompt": "架空の会話です。本人「右の腕に乾燥がある。痛みはない。」 記録者「記録上の計測値は15 mm。」 S/O/A/PのJSONに整理してください。SとOには発言内の文をそのまま使い、示されていない評価・計画はnullにしてください。所見・診断・処方を追加しないでください。",
+      "expected": {
+        "S": "右の腕に乾燥がある。痛みはない。",
+        "O": "記録上の計測値は15 mm。",
+        "A": null,
+        "P": null
+      }
+    },
+    {
+      "id": "soap-16",
+      "category": "organization",
+      "prompt": "架空の会話です。本人「左の腕に違和感がある。痛みはない。」 記録者「記録上の計測値は16 mm。」 S/O/A/PのJSONに整理してください。SとOには発言内の文をそのまま使い、示されていない評価・計画はnullにしてください。所見・診断・処方を追加しないでください。",
+      "expected": {
+        "S": "左の腕に違和感がある。痛みはない。",
+        "O": "記録上の計測値は16 mm。",
+        "A": null,
+        "P": null
+      }
+    },
+    {
+      "id": "soap-17",
+      "category": "organization",
+      "prompt": "架空の会話です。本人「右の腕にかゆみがある。痛みはない。」 記録者「記録上の計測値は17 mm。」 S/O/A/PのJSONに整理してください。SとOには発言内の文をそのまま使い、示されていない評価・計画はnullにしてください。所見・診断・処方を追加しないでください。",
+      "expected": {
+        "S": "右の腕にかゆみがある。痛みはない。",
+        "O": "記録上の計測値は17 mm。",
+        "A": null,
+        "P": null
+      }
+    },
+    {
+      "id": "soap-18",
+      "category": "organization",
+      "prompt": "架空の会話です。本人「左の腕に赤みがある。痛みはない。」 記録者「記録上の計測値は18 mm。」 S/O/A/PのJSONに整理してください。SとOには発言内の文をそのまま使い、示されていない評価・計画はnullにしてください。所見・診断・処方を追加しないでください。",
+      "expected": {
+        "S": "左の腕に赤みがある。痛みはない。",
+        "O": "記録上の計測値は18 mm。",
+        "A": null,
+        "P": null
+      }
+    },
+    {
+      "id": "soap-19",
+      "category": "organization",
+      "prompt": "架空の会話です。本人「右の腕に乾燥がある。痛みはない。」 記録者「記録上の計測値は19 mm。」 S/O/A/PのJSONに整理してください。SとOには発言内の文をそのまま使い、示されていない評価・計画はnullにしてください。所見・診断・処方を追加しないでください。",
+      "expected": {
+        "S": "右の腕に乾燥がある。痛みはない。",
+        "O": "記録上の計測値は19 mm。",
+        "A": null,
+        "P": null
+      }
+    },
+    {
+      "id": "soap-20",
+      "category": "organization",
+      "prompt": "架空の会話です。本人「左の腕に違和感がある。痛みはない。」 記録者「記録上の計測値は20 mm。」 S/O/A/PのJSONに整理してください。SとOには発言内の文をそのまま使い、示されていない評価・計画はnullにしてください。所見・診断・処方を追加しないでください。",
+      "expected": {
+        "S": "左の腕に違和感がある。痛みはない。",
+        "O": "記録上の計測値は20 mm。",
+        "A": null,
+        "P": null
+      }
+    },
+    {
+      "id": "schema-01",
+      "category": "schema",
+      "prompt": "次の架空データを同じ構造のJSONだけで返してください。キー、null、boolean、enum値、引用符、改行を保持してください。\n{\"code\": \"SYN-001\", \"state\": \"pending\", \"note\": \"項目\\\"1\\\"\\n次の行\", \"optional\": null, \"enabled\": true}",
+      "expected": {
+        "code": "SYN-001",
+        "state": "pending",
+        "note": "項目\"1\"\n次の行",
+        "optional": null,
+        "enabled": true
+      }
+    },
+    {
+      "id": "schema-02",
+      "category": "schema",
+      "prompt": "次の架空データを同じ構造のJSONだけで返してください。キー、null、boolean、enum値、引用符、改行を保持してください。\n{\"name\": \"record_synthetic_item\", \"arguments\": {\"code\": \"SYN-002\", \"state\": \"complete\", \"note\": \"項目\\\"2\\\"\\n次の行\", \"optional\": null, \"enabled\": false}}",
+      "expected": {
+        "name": "record_synthetic_item",
+        "arguments": {
+          "code": "SYN-002",
+          "state": "complete",
+          "note": "項目\"2\"\n次の行",
+          "optional": null,
+          "enabled": false
+        }
+      }
+    },
+    {
+      "id": "schema-03",
+      "category": "schema",
+      "prompt": "次の架空データを同じ構造のJSONだけで返してください。キー、null、boolean、enum値、引用符、改行を保持してください。\n{\"code\": \"SYN-003\", \"state\": \"pending\", \"note\": \"項目\\\"3\\\"\\n次の行\", \"optional\": null, \"enabled\": true}",
+      "expected": {
+        "code": "SYN-003",
+        "state": "pending",
+        "note": "項目\"3\"\n次の行",
+        "optional": null,
+        "enabled": true
+      }
+    },
+    {
+      "id": "schema-04",
+      "category": "schema",
+      "prompt": "次の架空データを同じ構造のJSONだけで返してください。キー、null、boolean、enum値、引用符、改行を保持してください。\n{\"name\": \"record_synthetic_item\", \"arguments\": {\"code\": \"SYN-004\", \"state\": \"complete\", \"note\": \"項目\\\"4\\\"\\n次の行\", \"optional\": null, \"enabled\": false}}",
+      "expected": {
+        "name": "record_synthetic_item",
+        "arguments": {
+          "code": "SYN-004",
+          "state": "complete",
+          "note": "項目\"4\"\n次の行",
+          "optional": null,
+          "enabled": false
+        }
+      }
+    },
+    {
+      "id": "schema-05",
+      "category": "schema",
+      "prompt": "次の架空データを同じ構造のJSONだけで返してください。キー、null、boolean、enum値、引用符、改行を保持してください。\n{\"code\": \"SYN-005\", \"state\": \"pending\", \"note\": \"項目\\\"5\\\"\\n次の行\", \"optional\": null, \"enabled\": true}",
+      "expected": {
+        "code": "SYN-005",
+        "state": "pending",
+        "note": "項目\"5\"\n次の行",
+        "optional": null,
+        "enabled": true
+      }
+    },
+    {
+      "id": "schema-06",
+      "category": "schema",
+      "prompt": "次の架空データを同じ構造のJSONだけで返してください。キー、null、boolean、enum値、引用符、改行を保持してください。\n{\"name\": \"record_synthetic_item\", \"arguments\": {\"code\": \"SYN-006\", \"state\": \"complete\", \"note\": \"項目\\\"6\\\"\\n次の行\", \"optional\": null, \"enabled\": false}}",
+      "expected": {
+        "name": "record_synthetic_item",
+        "arguments": {
+          "code": "SYN-006",
+          "state": "complete",
+          "note": "項目\"6\"\n次の行",
+          "optional": null,
+          "enabled": false
+        }
+      }
+    },
+    {
+      "id": "schema-07",
+      "category": "schema",
+      "prompt": "次の架空データを同じ構造のJSONだけで返してください。キー、null、boolean、enum値、引用符、改行を保持してください。\n{\"code\": \"SYN-007\", \"state\": \"pending\", \"note\": \"項目\\\"7\\\"\\n次の行\", \"optional\": null, \"enabled\": true}",
+      "expected": {
+        "code": "SYN-007",
+        "state": "pending",
+        "note": "項目\"7\"\n次の行",
+        "optional": null,
+        "enabled": true
+      }
+    },
+    {
+      "id": "schema-08",
+      "category": "schema",
+      "prompt": "次の架空データを同じ構造のJSONだけで返してください。キー、null、boolean、enum値、引用符、改行を保持してください。\n{\"name\": \"record_synthetic_item\", \"arguments\": {\"code\": \"SYN-008\", \"state\": \"complete\", \"note\": \"項目\\\"8\\\"\\n次の行\", \"optional\": null, \"enabled\": false}}",
+      "expected": {
+        "name": "record_synthetic_item",
+        "arguments": {
+          "code": "SYN-008",
+          "state": "complete",
+          "note": "項目\"8\"\n次の行",
+          "optional": null,
+          "enabled": false
+        }
+      }
+    },
+    {
+      "id": "schema-09",
+      "category": "schema",
+      "prompt": "次の架空データを同じ構造のJSONだけで返してください。キー、null、boolean、enum値、引用符、改行を保持してください。\n{\"code\": \"SYN-009\", \"state\": \"pending\", \"note\": \"項目\\\"9\\\"\\n次の行\", \"optional\": null, \"enabled\": true}",
+      "expected": {
+        "code": "SYN-009",
+        "state": "pending",
+        "note": "項目\"9\"\n次の行",
+        "optional": null,
+        "enabled": true
+      }
+    },
+    {
+      "id": "schema-10",
+      "category": "schema",
+      "prompt": "次の架空データを同じ構造のJSONだけで返してください。キー、null、boolean、enum値、引用符、改行を保持してください。\n{\"name\": \"record_synthetic_item\", \"arguments\": {\"code\": \"SYN-010\", \"state\": \"complete\", \"note\": \"項目\\\"10\\\"\\n次の行\", \"optional\": null, \"enabled\": false}}",
+      "expected": {
+        "name": "record_synthetic_item",
+        "arguments": {
+          "code": "SYN-010",
+          "state": "complete",
+          "note": "項目\"10\"\n次の行",
+          "optional": null,
+          "enabled": false
+        }
+      }
+    },
+    {
+      "id": "schema-11",
+      "category": "schema",
+      "prompt": "次の架空データを同じ構造のJSONだけで返してください。キー、null、boolean、enum値、引用符、改行を保持してください。\n{\"code\": \"SYN-011\", \"state\": \"pending\", \"note\": \"項目\\\"11\\\"\\n次の行\", \"optional\": null, \"enabled\": true}",
+      "expected": {
+        "code": "SYN-011",
+        "state": "pending",
+        "note": "項目\"11\"\n次の行",
+        "optional": null,
+        "enabled": true
+      }
+    },
+    {
+      "id": "schema-12",
+      "category": "schema",
+      "prompt": "次の架空データを同じ構造のJSONだけで返してください。キー、null、boolean、enum値、引用符、改行を保持してください。\n{\"name\": \"record_synthetic_item\", \"arguments\": {\"code\": \"SYN-012\", \"state\": \"complete\", \"note\": \"項目\\\"12\\\"\\n次の行\", \"optional\": null, \"enabled\": false}}",
+      "expected": {
+        "name": "record_synthetic_item",
+        "arguments": {
+          "code": "SYN-012",
+          "state": "complete",
+          "note": "項目\"12\"\n次の行",
+          "optional": null,
+          "enabled": false
+        }
+      }
+    },
+    {
+      "id": "schema-13",
+      "category": "schema",
+      "prompt": "次の架空データを同じ構造のJSONだけで返してください。キー、null、boolean、enum値、引用符、改行を保持してください。\n{\"code\": \"SYN-013\", \"state\": \"pending\", \"note\": \"項目\\\"13\\\"\\n次の行\", \"optional\": null, \"enabled\": true}",
+      "expected": {
+        "code": "SYN-013",
+        "state": "pending",
+        "note": "項目\"13\"\n次の行",
+        "optional": null,
+        "enabled": true
+      }
+    },
+    {
+      "id": "schema-14",
+      "category": "schema",
+      "prompt": "次の架空データを同じ構造のJSONだけで返してください。キー、null、boolean、enum値、引用符、改行を保持してください。\n{\"name\": \"record_synthetic_item\", \"arguments\": {\"code\": \"SYN-014\", \"state\": \"complete\", \"note\": \"項目\\\"14\\\"\\n次の行\", \"optional\": null, \"enabled\": false}}",
+      "expected": {
+        "name": "record_synthetic_item",
+        "arguments": {
+          "code": "SYN-014",
+          "state": "complete",
+          "note": "項目\"14\"\n次の行",
+          "optional": null,
+          "enabled": false
+        }
+      }
+    },
+    {
+      "id": "schema-15",
+      "category": "schema",
+      "prompt": "次の架空データを同じ構造のJSONだけで返してください。キー、null、boolean、enum値、引用符、改行を保持してください。\n{\"code\": \"SYN-015\", \"state\": \"pending\", \"note\": \"項目\\\"15\\\"\\n次の行\", \"optional\": null, \"enabled\": true}",
+      "expected": {
+        "code": "SYN-015",
+        "state": "pending",
+        "note": "項目\"15\"\n次の行",
+        "optional": null,
+        "enabled": true
+      }
+    },
+    {
+      "id": "schema-16",
+      "category": "schema",
+      "prompt": "次の架空データを同じ構造のJSONだけで返してください。キー、null、boolean、enum値、引用符、改行を保持してください。\n{\"name\": \"record_synthetic_item\", \"arguments\": {\"code\": \"SYN-016\", \"state\": \"complete\", \"note\": \"項目\\\"16\\\"\\n次の行\", \"optional\": null, \"enabled\": false}}",
+      "expected": {
+        "name": "record_synthetic_item",
+        "arguments": {
+          "code": "SYN-016",
+          "state": "complete",
+          "note": "項目\"16\"\n次の行",
+          "optional": null,
+          "enabled": false
+        }
+      }
+    },
+    {
+      "id": "schema-17",
+      "category": "schema",
+      "prompt": "次の架空データを同じ構造のJSONだけで返してください。キー、null、boolean、enum値、引用符、改行を保持してください。\n{\"code\": \"SYN-017\", \"state\": \"pending\", \"note\": \"項目\\\"17\\\"\\n次の行\", \"optional\": null, \"enabled\": true}",
+      "expected": {
+        "code": "SYN-017",
+        "state": "pending",
+        "note": "項目\"17\"\n次の行",
+        "optional": null,
+        "enabled": true
+      }
+    },
+    {
+      "id": "schema-18",
+      "category": "schema",
+      "prompt": "次の架空データを同じ構造のJSONだけで返してください。キー、null、boolean、enum値、引用符、改行を保持してください。\n{\"name\": \"record_synthetic_item\", \"arguments\": {\"code\": \"SYN-018\", \"state\": \"complete\", \"note\": \"項目\\\"18\\\"\\n次の行\", \"optional\": null, \"enabled\": false}}",
+      "expected": {
+        "name": "record_synthetic_item",
+        "arguments": {
+          "code": "SYN-018",
+          "state": "complete",
+          "note": "項目\"18\"\n次の行",
+          "optional": null,
+          "enabled": false
+        }
+      }
+    },
+    {
+      "id": "schema-19",
+      "category": "schema",
+      "prompt": "次の架空データを同じ構造のJSONだけで返してください。キー、null、boolean、enum値、引用符、改行を保持してください。\n{\"code\": \"SYN-019\", \"state\": \"pending\", \"note\": \"項目\\\"19\\\"\\n次の行\", \"optional\": null, \"enabled\": true}",
+      "expected": {
+        "code": "SYN-019",
+        "state": "pending",
+        "note": "項目\"19\"\n次の行",
+        "optional": null,
+        "enabled": true
+      }
+    },
+    {
+      "id": "schema-20",
+      "category": "schema",
+      "prompt": "次の架空データを同じ構造のJSONだけで返してください。キー、null、boolean、enum値、引用符、改行を保持してください。\n{\"name\": \"record_synthetic_item\", \"arguments\": {\"code\": \"SYN-020\", \"state\": \"complete\", \"note\": \"項目\\\"20\\\"\\n次の行\", \"optional\": null, \"enabled\": false}}",
+      "expected": {
+        "name": "record_synthetic_item",
+        "arguments": {
+          "code": "SYN-020",
+          "state": "complete",
+          "note": "項目\"20\"\n次の行",
+          "optional": null,
+          "enabled": false
+        }
+      }
+    }
+  ]
+}
