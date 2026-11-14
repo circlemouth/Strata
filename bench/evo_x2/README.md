@@ -1,9 +1,12 @@
 # Offline qualification helpers
 
 This directory contains a deterministic workload plan, sixty fictional Japanese
-fixtures, independent contract checks, and offline comparison tools. The commands
-do not contact a server, load a model, read service configuration, start or stop a
-process, or use a GPU. They require only the Python standard library.
+fixtures, independent contract checks, and offline comparison tools. The `plan`,
+`fixtures`, `evaluate` and synthetic replay commands do not contact a server,
+load a model, read service configuration, start or stop a process, or use a GPU.
+They require only the Python standard library. The separate [stream capture
+adapter](CAPTURE.md) has an explicit, disabled-by-default loopback-only mode for
+an independently prepared local test server. Its tests use no networking.
 
 These are qualification building blocks, not completed hardware qualification.
 Unit-test timings and example values are synthetic. They are not model or device

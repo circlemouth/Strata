@@ -1,0 +1,94 @@
+{
+  "schema_version": 1,
+  "synthetic_only": true,
+  "requests": [
+    {
+      "id": "left",
+      "target_input_tokens": 4096,
+      "payload": {
+        "model": "synthetic-model",
+        "messages": [
+          {
+            "role": "user",
+            "content": "架空テスト left"
+          }
+        ],
+        "stream": true,
+        "max_tokens": 512,
+        "temperature": 0,
+        "seed": 1
+      }
+    },
+    {
+      "id": "right",
+      "target_input_tokens": 4096,
+      "payload": {
+        "model": "synthetic-model",
+        "messages": [
+          {
+            "role": "user",
+            "content": "架空テスト right"
+          }
+        ],
+        "stream": true,
+        "max_tokens": 512,
+        "temperature": 0,
+        "seed": 1
+      }
+    }
+  ],
+  "streams": {
+    "left": [
+      {
+        "at_s": 0.01,
+        "data": ": keep-alive\n\n"
+      },
+      {
+        "at_s": 0.02,
+        "data": "data: {\"id\": \"chatcmpl-left\", \"model\": \"synthetic-model\", \"object\": \"chat.completion.chunk\", \"choices\": [{\"index\": 0, \"delta\": {\"role\": \"assistant\", \"content\": \"\"}, \"finish_reason\": null}]}\n\n"
+      },
+      {
+        "at_s": 0.03,
+        "data": "data: {\"id\": \"chatcmpl-left\", \"model\": \"synthetic-model\", \"object\": \"chat.completion.chunk\", \"choices\": [{\"index\": 0, \"delta\": {\"reasoning_content\": \"架空の推論\"}, \"finish_reason\": null}]}\n\n"
+      },
+      {
+        "at_s": 0.04,
+        "data": "data: {\"id\": \"chatcmpl-left\", \"model\": \"synthetic-model\", \"object\": \"chat.completion.chunk\", \"choices\": [{\"index\": 0, \"delta\": {\"content\": \"架空の回答\"}, \"finish_reason\": null}]}\n\n"
+      },
+      {
+        "at_s": 1.0,
+        "data": "data: {\"id\": \"chatcmpl-left\", \"model\": \"synthetic-model\", \"object\": \"chat.completion.chunk\", \"choices\": [{\"index\": 0, \"delta\": {}, \"finish_reason\": \"length\"}], \"usage\": {\"prompt_tokens\": 4096, \"completion_tokens\": 512, \"total_tokens\": 4608, \"prompt_tokens_details\": {\"cached_tokens\": 0}}}\n\n"
+      },
+      {
+        "at_s": 1.1,
+        "data": "data: [DONE]\n\n"
+      }
+    ],
+    "right": [
+      {
+        "at_s": 0.01,
+        "data": ": keep-alive\n\n"
+      },
+      {
+        "at_s": 0.02,
+        "data": "data: {\"id\": \"chatcmpl-right\", \"model\": \"synthetic-model\", \"object\": \"chat.completion.chunk\", \"choices\": [{\"index\": 0, \"delta\": {\"role\": \"assistant\", \"content\": \"\"}, \"finish_reason\": null}]}\n\n"
+      },
+      {
+        "at_s": 0.03,
+        "data": "data: {\"id\": \"chatcmpl-right\", \"model\": \"synthetic-model\", \"object\": \"chat.completion.chunk\", \"choices\": [{\"index\": 0, \"delta\": {\"reasoning_content\": \"架空の推論\"}, \"finish_reason\": null}]}\n\n"
+      },
+      {
+        "at_s": 0.04,
+        "data": "data: {\"id\": \"chatcmpl-right\", \"model\": \"synthetic-model\", \"object\": \"chat.completion.chunk\", \"choices\": [{\"index\": 0, \"delta\": {\"content\": \"架空の回答\"}, \"finish_reason\": null}]}\n\n"
+      },
+      {
+        "at_s": 1.0,
+        "data": "data: {\"id\": \"chatcmpl-right\", \"model\": \"synthetic-model\", \"object\": \"chat.completion.chunk\", \"choices\": [{\"index\": 0, \"delta\": {}, \"finish_reason\": \"length\"}], \"usage\": {\"prompt_tokens\": 4096, \"completion_tokens\": 512, \"total_tokens\": 4608, \"prompt_tokens_details\": {\"cached_tokens\": 0}}}\n\n"
+      },
+      {
+        "at_s": 1.1,
+        "data": "data: [DONE]\n\n"
+      }
+    ]
+  }
+}
