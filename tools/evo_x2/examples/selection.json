@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "assets": [
+    {
+      "role": "model_shard",
+      "path": "/path/to/model-shard.gguf"
+    },
+    {
+      "role": "tokenizer",
+      "path": "/path/to/tokenizer.json"
+    }
+  ],
+  "host_metadata": false
+}

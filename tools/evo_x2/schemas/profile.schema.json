@@ -1,0 +1,194 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "EVO profile",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "type": "integer",
+      "const": 1
+    },
+    "profile": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_.-]+$"
+    },
+    "device": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "backend": {
+          "type": "string",
+          "const": "hip"
+        },
+        "architecture": {
+          "type": "string",
+          "const": "gfx1151"
+        },
+        "integrated": {
+          "type": "boolean",
+          "const": true
+        },
+        "count": {
+          "type": "integer",
+          "const": 1
+        }
+      },
+      "required": [
+        "backend",
+        "architecture",
+        "integrated",
+        "count"
+      ]
+    },
+    "assets": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "source": {
+          "type": "string",
+          "const": "runtime-manifest"
+        },
+        "immutable": {
+          "type": "boolean",
+          "const": true
+        }
+      },
+      "required": [
+        "source",
+        "immutable"
+      ]
+    },
+    "contract": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "context_tokens": {
+          "type": "integer",
+          "const": 131072
+        },
+        "parallel_requests": {
+          "type": "integer",
+          "const": 2
+        },
+        "max_output_tokens": {
+          "type": "integer",
+          "const": 16384
+        },
+        "default_output_tokens": {
+          "type": "integer",
+          "const": 16384
+        },
+        "reject_nonpositive_output_limit": {
+          "type": "boolean",
+          "const": true
+        },
+        "context_slack_tokens": {
+          "type": "integer",
+          "const": 8
+        },
+        "fit_max_tokens": {
+          "type": "boolean",
+          "const": false
+        },
+        "kv_dtype": {
+          "type": "string",
+          "const": "inherit_manifest"
+        },
+        "sampling": {
+          "type": "string",
+          "const": "inherit_manifest"
+        },
+        "thinking": {
+          "type": "string",
+          "const": "inherit_manifest"
+        },
+        "vision": {
+          "type": "string",
+          "const": "inherit_manifest"
+        },
+        "drafter": {
+          "type": "string",
+          "const": "inherit_manifest"
+        }
+      },
+      "required": [
+        "context_tokens",
+        "parallel_requests",
+        "max_output_tokens",
+        "default_output_tokens",
+        "reject_nonpositive_output_limit",
+        "context_slack_tokens",
+        "fit_max_tokens",
+        "kv_dtype",
+        "sampling",
+        "thinking",
+        "vision",
+        "drafter"
+      ]
+    },
+    "memory": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "layout": {
+          "type": "string",
+          "const": "baseline"
+        }
+      },
+      "required": [
+        "layout"
+      ]
+    },
+    "kernels": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "direct_fp16": {
+          "type": "string",
+          "const": "upstream"
+        },
+        "split_topk": {
+          "type": "string",
+          "const": "upstream"
+        }
+      },
+      "required": [
+        "direct_fp16",
+        "split_topk"
+      ]
+    },
+    "qualification": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "mandatory": {
+          "type": "boolean",
+          "const": true
+        },
+        "refuse_parallel_downgrade": {
+          "type": "boolean",
+          "const": true
+        },
+        "refuse_context_downgrade": {
+          "type": "boolean",
+          "const": true
+        }
+      },
+      "required": [
+        "mandatory",
+        "refuse_parallel_downgrade",
+        "refuse_context_downgrade"
+      ]
+    }
+  },
+  "required": [
+    "schema_version",
+    "profile",
+    "device",
+    "assets",
+    "contract",
+    "memory",
+    "kernels",
+    "qualification"
+  ]
+}

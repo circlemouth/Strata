@@ -1,0 +1,291 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "EVO manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "type": "integer",
+      "const": 1
+    },
+    "status": {
+      "type": "string",
+      "const": "inventory_only"
+    },
+    "captured_at": {
+      "type": "string",
+      "minLength": 1
+    },
+    "assets": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "role": {
+            "type": "string",
+            "enum": [
+              "model_shard",
+              "pack",
+              "dense",
+              "expert",
+              "tokenizer",
+              "template",
+              "vision_projector",
+              "draft",
+              "serving_code",
+              "library",
+              "binary"
+            ]
+          },
+          "path": {
+            "type": "string",
+            "minLength": 1
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "bytes": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "role",
+          "path",
+          "sha256",
+          "bytes"
+        ]
+      },
+      "minItems": 1
+    },
+    "configuration": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "ctx": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "parallel": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "fit_max_tokens": {
+          "type": "boolean"
+        },
+        "temperature": {
+          "type": "number",
+          "minimum": 0
+        },
+        "top_p": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "top_k": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "presence_penalty": {
+          "type": "number"
+        }
+      },
+      "required": []
+    },
+    "authentication": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "source": {
+            "type": "string",
+            "const": "selected_config"
+          },
+          "present": {
+            "type": "boolean",
+            "const": true
+          }
+        },
+        "required": [
+          "source",
+          "present"
+        ]
+      }
+    },
+    "environment": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "STRATA_PF_FUSED": {
+          "type": "string",
+          "enum": [
+            "0",
+            "1"
+          ]
+        },
+        "STRATA_PF_FUSED_NATIVE": {
+          "type": "string",
+          "enum": [
+            "0",
+            "1"
+          ]
+        },
+        "STRATA_PREFILL_MMQ": {
+          "type": "string",
+          "enum": [
+            "0",
+            "1"
+          ]
+        }
+      },
+      "required": []
+    },
+    "unverified": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "loaded_asset_identity",
+          "tensor_geometry",
+          "device_and_toolchain",
+          "memory_budget_and_cgroups",
+          "expert_residency",
+          "runtime_p2",
+          "quality_and_performance",
+          "co_resident_services"
+        ]
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "process": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "pid": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "start_ticks": {
+          "type": "string",
+          "pattern": "^[0-9]+$"
+        },
+        "executable": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "path": {
+              "type": "string",
+              "minLength": 1
+            },
+            "sha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            "bytes": {
+              "type": "integer",
+              "minimum": 0
+            }
+          },
+          "required": [
+            "path",
+            "sha256",
+            "bytes"
+          ]
+        }
+      },
+      "required": [
+        "pid",
+        "start_ticks",
+        "executable"
+      ]
+    },
+    "service": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "scope": {
+          "type": "string",
+          "enum": [
+            "system",
+            "user"
+          ]
+        },
+        "name": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_.@-]+\\.service$"
+        },
+        "unit_files": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "path": {
+                "type": "string",
+                "minLength": 1
+              },
+              "sha256": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$"
+              },
+              "bytes": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": [
+              "path",
+              "sha256",
+              "bytes"
+            ]
+          },
+          "minItems": 1
+        },
+        "binding_verified": {
+          "type": "boolean",
+          "const": false
+        }
+      },
+      "required": [
+        "scope",
+        "name",
+        "unit_files",
+        "binding_verified"
+      ]
+    },
+    "host": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "hostname": {
+          "type": "string"
+        },
+        "kernel": {
+          "type": "string"
+        },
+        "machine": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "hostname",
+        "kernel",
+        "machine"
+      ]
+    }
+  },
+  "required": [
+    "schema_version",
+    "status",
+    "captured_at",
+    "assets",
+    "configuration",
+    "authentication",
+    "environment",
+    "unverified"
+  ]
+}

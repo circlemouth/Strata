@@ -1,0 +1,130 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "EVO selection",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "type": "integer",
+      "const": 1
+    },
+    "assets": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "role": {
+            "type": "string",
+            "enum": [
+              "model_shard",
+              "pack",
+              "dense",
+              "expert",
+              "tokenizer",
+              "template",
+              "vision_projector",
+              "draft",
+              "serving_code",
+              "library",
+              "binary"
+            ]
+          },
+          "path": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "role",
+          "path"
+        ]
+      },
+      "minItems": 1
+    },
+    "config": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "fields": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "ctx",
+              "parallel",
+              "fit_max_tokens",
+              "temperature",
+              "top_p",
+              "top_k",
+              "presence_penalty"
+            ]
+          },
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "path",
+        "fields"
+      ]
+    },
+    "pid": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "environment": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "STRATA_PF_FUSED",
+          "STRATA_PF_FUSED_NATIVE",
+          "STRATA_PREFILL_MMQ"
+        ]
+      },
+      "uniqueItems": true
+    },
+    "service": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "scope": {
+          "type": "string",
+          "enum": [
+            "system",
+            "user"
+          ]
+        },
+        "name": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_.@-]+\\.service$"
+        },
+        "unit_files": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "scope",
+        "name",
+        "unit_files"
+      ]
+    },
+    "host_metadata": {
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "schema_version",
+    "assets"
+  ]
+}

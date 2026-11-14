@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "profile": "baseline-review",
+  "device": {
+    "backend": "hip",
+    "architecture": "gfx1151",
+    "integrated": true,
+    "count": 1
+  },
+  "assets": {
+    "source": "runtime-manifest",
+    "immutable": true
+  },
+  "contract": {
+    "context_tokens": 131072,
+    "parallel_requests": 2,
+    "max_output_tokens": 16384,
+    "default_output_tokens": 16384,
+    "reject_nonpositive_output_limit": true,
+    "context_slack_tokens": 8,
+    "fit_max_tokens": false,
+    "kv_dtype": "inherit_manifest",
+    "sampling": "inherit_manifest",
+    "thinking": "inherit_manifest",
+    "vision": "inherit_manifest",
+    "drafter": "inherit_manifest"
+  },
+  "memory": {
+    "layout": "baseline"
+  },
+  "kernels": {
+    "direct_fp16": "upstream",
+    "split_topk": "upstream"
+  },
+  "qualification": {
+    "mandatory": true,
+    "refuse_parallel_downgrade": true,
+    "refuse_context_downgrade": true
+  }
+}
