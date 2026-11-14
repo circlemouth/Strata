@@ -149,8 +149,9 @@ bytes, top-k ID/order parity and kernel dispatch still need independent tests.
 
 `speed_gate()` accepts all five cold P2 lengths, each with five or more aligned
 reference/candidate pair completion times and both request latency series. It
-takes the median paired speed ratio per length, then the equally weighted
-geometric mean across lengths. The speed requirement is at least 1.10×. Each
+takes the median paired candidate/reference elapsed-time ratio per length, then
+the equally weighted geometric mean across lengths. The requirement is at most
+0.90 (at least 10% less elapsed time, equivalent to at least 1/0.90× speedup). Each
 request median may regress at most 5%; short-request p95 (100+ requests), mixed
 decode interval p95, mixed short TTFT and each warm increment may regress at most
 10%. `test_qualification.speed_evidence` documents the input shape using only

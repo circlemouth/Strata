@@ -248,6 +248,27 @@ class PerformanceMath(unittest.TestCase):
             row["candidate_pair_s"] = [9.9] * 5
         self.assertFalse(speed_gate(data)["passed"])
 
+    def test_exact_ten_percent_elapsed_reduction_passes(self):
+        data = speed_evidence()
+        for row in data["cold_p2"].values():
+            row["candidate_pair_s"] = [9.0] * 5
+        report = speed_gate(data)
+        self.assertTrue(report["passed"], report["errors"])
+        self.assertAlmostEqual(report["cold_p2_geometric_elapsed_ratio"], .90)
+        self.assertAlmostEqual(report["cold_p2_geometric_speedup"], 1 / .90)
+
+    def test_just_under_ten_percent_elapsed_reduction_fails(self):
+        data = speed_evidence()
+        for row in data["cold_p2"].values():
+            row["candidate_pair_s"] = [9.00001] * 5
+        self.assertFalse(speed_gate(data)["passed"])
+
+    def test_ten_percent_throughput_gain_is_insufficient(self):
+        data = speed_evidence()
+        for row in data["cold_p2"].values():
+            row["candidate_pair_s"] = [10 / 1.10] * 5
+        self.assertFalse(speed_gate(data)["passed"])
+
     def test_memory_saving_has_different_acceptance(self):
         report = memory_gate(memory_evidence())
         self.assertTrue(report["passed"], report["errors"])

@@ -22,24 +22,24 @@ def speed_gate(data):
 
     This arithmetic gate does not certify provenance, readiness, quality, memory,
     thermal conditions, coexistence, lifecycle, or the 60-minute soak. Those
-    remain separate evidence requirements. A 10% speed gain means >=1.10x, not
-    a guessed threshold on milliseconds.
+    remain separate evidence requirements. Conservatively, 10% improvement
+    means candidate/reference elapsed time <=0.90 (speedup >=1/0.90).
     """
     errors, ratios = [], {}
     try:
         cold = data["cold_p2"]
         if set(cold) != {str(x) for x in LENGTHS}:
             raise ValueError("all five input lengths must be present, once")
-        speedups = []
+        elapsed_ratios = []
         for length in LENGTHS:
             cell = cold[str(length)]
             reference, candidate = cell["reference_pair_s"], cell["candidate_pair_s"]
             _ratio(reference, candidate)
             # Preserve the five paired ratios. Summarize each length by its
             # median ratio; then give each length equal weight.
-            speedup = statistics.median(a / b for a, b in zip(reference, candidate))
-            speedups.append(speedup)
-            ratios[f"cold_p2:{length}"] = 1 / speedup
+            elapsed_ratio = statistics.median(b / a for a, b in zip(reference, candidate))
+            elapsed_ratios.append(elapsed_ratio)
+            ratios[f"cold_p2:{length}"] = elapsed_ratio
             per_request = cell["request_latency"]
             if len(per_request) != 2:
                 raise ValueError("both request-latency series are required")
@@ -48,9 +48,10 @@ def speed_gate(data):
                 ratios[f"request:{length}:{slot}"] = ratio
                 if ratio > 1.05:
                     errors.append(f"request_latency_regression:{length}:{slot}")
-        geometric_speedup = math.exp(math.fsum(math.log(x) for x in speedups) / len(speedups))
-        if geometric_speedup < 1.10:
-            errors.append("cold_p2_speedup_below_1.10x")
+        geometric_elapsed_ratio = math.exp(math.fsum(math.log(x) for x in elapsed_ratios) / len(elapsed_ratios))
+        geometric_speedup = 1 / geometric_elapsed_ratio
+        if geometric_elapsed_ratio > .90:
+            errors.append("cold_p2_elapsed_reduction_below_10_percent")
         short = data["short_latency"]
         ratio = _ratio(short["reference_s"], short["candidate_s"], minimum=100, quantile=.95)
         ratios["short_p95"] = ratio
@@ -75,8 +76,10 @@ def speed_gate(data):
     except (KeyError, TypeError, ValueError, ZeroDivisionError, OverflowError) as exc:
         errors.append(f"invalid_or_missing_evidence:{exc}")
         geometric_speedup = None
+        geometric_elapsed_ratio = None
     return {"scope": "performance_arithmetic_only", "passed": not errors,
             "errors": errors, "cold_p2_geometric_speedup": geometric_speedup,
+            "cold_p2_geometric_elapsed_ratio": geometric_elapsed_ratio,
             "candidate_reference_latency_ratios": ratios}
 
 
