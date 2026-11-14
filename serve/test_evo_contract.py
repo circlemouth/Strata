@@ -1,6 +1,9 @@
 """CPU-only HTTP contract checks; mock counts do not qualify real P2 hardware."""
 import http.client
+import contextlib
+import io
 import json
+import tempfile
 import unittest
 from pathlib import Path
 from types import SimpleNamespace
@@ -8,11 +11,26 @@ from unittest import mock
 
 from serve import evo_contract as evo
 from serve import runconfig
+from serve import server
 from serve.frontend import ChatTemplate
 from serve.server import ByteTokenizer, MockEngine, Service, serve
 
 
 class Limits(unittest.TestCase):
+    def test_cli_parallel_conflict_fails_before_any_runtime_initialization(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "config.json"
+            path.write_text(json.dumps({"evo_contract": True, "fit_max_tokens": False, "parallel": 2, "args": []}))
+            with mock.patch.object(server.lifeline, "install_stop_handlers"), \
+                    mock.patch("strata_control.private_files.adopt_user_defaults"), \
+                    mock.patch.object(server, "MockEngine") as engine, \
+                    mock.patch.object(server, "Server") as listener, \
+                    contextlib.redirect_stderr(io.StringIO()), self.assertRaises(SystemExit) as raised:
+                server._main(["--engine", "mock", "--config", str(path), "--parallel", "1"])
+            self.assertEqual(raised.exception.code, 2)
+            engine.assert_not_called()
+            listener.assert_not_called()
+
     def test_default_config_view_does_not_offer_experimental_contract(self):
         for cfg in ({}, {"evo_contract": False}):
             keys = {item["key"] for item in runconfig.view(cfg, "config.json")["keys"]}

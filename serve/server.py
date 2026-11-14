@@ -10205,10 +10205,6 @@ def _main(argv=None, *, lifecycle_event=None, interrupt_exit_code: int = 0) -> i
     split_joined_args(cfg)
     if a.config and a.engine == "strata":
         cfg = apply_saved_tuning(cfg)
-    try:
-        evo_enabled = evo_api.validate_config(cfg, fit_cli=a.fit_max_tokens, lazy_cli=a.lazy)
-    except ValueError as exc:
-        ap.error(str(exc))
     attestation_key = os.environ.pop("STRATA_OWNER_ATTEST_KEY", None)
     launch_attestation = None
     if a.owner_fd is not None:
@@ -10257,6 +10253,12 @@ def _main(argv=None, *, lifecycle_event=None, interrupt_exit_code: int = 0) -> i
                               "prefill_gpu": int(pair[0]), "decode_gpu": int(pair[1])}
     if a.gpu is not None:
         cfg["gpu"] = int(a.gpu) if a.gpu.strip().isdigit() else a.gpu
+    # Validate the final CLI-overlaid contract before any listener, tokenizer,
+    # vision reader or model engine can initialize.
+    try:
+        evo_enabled = evo_api.validate_config(cfg, fit_cli=a.fit_max_tokens, lazy_cli=a.lazy)
+    except ValueError as exc:
+        ap.error(str(exc))
     a.host = a.host or cfg.get("host") or "127.0.0.1"   # issue #26: the run scripts pass no --host, the config can
     supplied_args = argv if argv is not None else sys.argv[1:]
     if ("STRATA_API_KEY" in os.environ and not os.environ["STRATA_API_KEY"].strip()) or \
