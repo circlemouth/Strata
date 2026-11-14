@@ -21,6 +21,7 @@
 #include <cstdlib>
 #include <utility>
 #include <cstring>
+#include <limits>
 
 // (not in a SYCL build: its CUDA names are a compatibility layer without the PCI ids NVML is matched by)
 #if defined(_WIN32) && !defined(STRATA_EC_NO_VMM) && !defined(SYCL_LANGUAGE_VERSION)
@@ -584,6 +585,10 @@ void ExpertCache::set_vmm(bool enabled) { g_cache_vmm = enabled; }
 bool ExpertCache::open(int64_t n_slots, int64_t n_layers, int64_t n_expert, int64_t blob_bytes,
                        std::string& err) {
     close();
+    if (evo_reserved_) {
+        err = "ExpertCache: previous guarded allocation was not released by the device";
+        return false;
+    }
     if (n_slots <= 0) {
         err = "ExpertCache: n_slots must be positive";
         return false;
@@ -593,7 +598,17 @@ bool ExpertCache::open(int64_t n_slots, int64_t n_layers, int64_t n_expert, int6
         return false;
     }
 
+    if (evo_plan_ && ((uint64_t) n_slots > (uint64_t) std::numeric_limits<int64_t>::max() / (uint64_t) blob_bytes ||
+                      (uint64_t) n_layers > (uint64_t) std::numeric_limits<int64_t>::max() / (uint64_t) n_expert)) {
+        err = "ExpertCache: guarded allocation byte count overflow";
+        return false;
+    }
     const uint64_t want = (uint64_t) n_slots * (uint64_t) blob_bytes;
+    if (evo_plan_ && (evo_backing_.physical_bytes != want || evo_backing_.device_bytes != want ||
+                      seg_req_ > 0 || g_cache_vmm)) {
+        err = "ExpertCache: EVO plan must price the exact arena; segmented/VMM ownership is unsupported";
+        return false;
+    }
 
     // ---- **THE ALLOCATION IS CHECKED AGAINST THE CARD, NOT AGAINST THE REQUEST.**
     //
@@ -602,8 +617,15 @@ bool ExpertCache::open(int64_t n_slots, int64_t n_layers, int64_t n_expert, int6
     // `device_slot()` walks off the end. So the free-VRAM figure is read and compared BEFORE the allocation,
     // and the two numbers are named in the refusal.
     size_t free_b = 0, total_b = 0;
-    if (cudaMemGetInfo(&free_b, &total_b) == cudaSuccess) {
-        free_b = device_free_bytes();   // unified memory: what the OS can give back counts (see the header)
+    const cudaError_t memory_status = cudaMemGetInfo(&free_b, &total_b);
+    if (evo_plan_ && (memory_status != cudaSuccess || total_b == 0 || free_b > total_b)) {
+        err = "ExpertCache: guarded allocation requires known device capacity";
+        return false;
+    }
+    if (memory_status == cudaSuccess) {
+        // The guarded path requires a successful observation, not an OS-based
+        // extrapolation after a second runtime query. A conservative refusal is safe.
+        if (!evo_plan_) free_b = device_free_bytes();
         if ((uint64_t) free_b < want) {
             char buf[320];
             std::snprintf(buf, sizeof buf,
@@ -616,6 +638,24 @@ bool ExpertCache::open(int64_t n_slots, int64_t n_layers, int64_t n_expert, int6
             return false;
         }
     }
+
+    // This reservation is shared with other bound caches and precedes the real
+    // cudaMalloc. An explicit slot count cannot bypass it. Open failures release
+    // the reservation; actual allocation release waits for confirmed cudaFree.
+    if (evo_plan_) {
+        if (!evo_plan_->reserve(evo_reference_, evo_backing_, err)) {
+            err = "ExpertCache: EVO reservation refused: " + err;
+            return false;
+        }
+        evo_reserved_ = true;
+    }
+    // Also clean up if error-string or host-metadata allocation throws. The
+    // default path keeps its existing cleanup behavior. Each guarded failure
+    // attempts device release once; unknown release retains its ledger charge.
+    struct GuardedOpenCleanup {
+        ExpertCache* cache;
+        ~GuardedOpenCleanup() { if (cache) cache->close(); }
+    } cleanup{evo_plan_ ? this : nullptr};
 
 #if !defined(STRATA_EC_NO_VMM)
     if (seg_req_ > 0 && !segmented_supported()) {   // a driver without them: one block, the engine starts all the same
@@ -646,11 +686,12 @@ bool ExpertCache::open(int64_t n_slots, int64_t n_layers, int64_t n_expert, int6
         err = buf;
         return false;
     }
+    if (evo_reserved_ && !evo_plan_->commit(evo_reference_, err)) return false;
     // Zeroed so a slot read before it is filled is a DETERMINISTIC wrong answer rather than whatever the
     // allocator handed back.  A stale block of a previous process's memory would still sum to finite floats.
     if (cudaMemset(base_, 0, (size_t) want) != cudaSuccess) {
         err = "ExpertCache: cudaMemset of the slot arena failed";
-        close();
+        if (!evo_plan_) close();
         return false;
     }
 
@@ -662,7 +703,7 @@ bool ExpertCache::open(int64_t n_slots, int64_t n_layers, int64_t n_expert, int6
     blob_ = blob_bytes;
 #if defined(STRATA_USE_HIP)
     if (!ensure_blocking_staging((std::size_t) blob_, err)) {
-        close();
+        if (!evo_plan_) close();
         return false;
     }
 #endif
@@ -677,6 +718,7 @@ bool ExpertCache::open(int64_t n_slots, int64_t n_layers, int64_t n_expert, int6
         layer_slot_range(l, lo, hi);
         layer_next_[(size_t) l] = (int32_t) lo;
     }
+    cleanup.cache = nullptr;
     return true;
 }
 
@@ -688,7 +730,18 @@ bool ExpertCache::open_sized(const std::vector<int64_t>& slot_bytes, int64_t n_l
     for (size_t i = 0; i < slot_bytes.size(); ++i) {
         // 256-byte aligned slots, so every blob starts where the kernels' vector loads expect it (and the
         // STRATA_MMQ_DIRECT guard after each blob, 0 by default)
-        off[i + 1] = off[i] + (uint64_t) slot_stride(slot_bytes[i], guard_req_);
+        if (evo_plan_ && (slot_bytes[i] <= 0 ||
+                guard_req_ > std::numeric_limits<int64_t>::max() - 255 ||
+                slot_bytes[i] > std::numeric_limits<int64_t>::max() - guard_req_ - 255)) {
+            err = "ExpertCache: guarded slot size or guard overflows";
+            return false;
+        }
+        const uint64_t stride = (uint64_t) slot_stride(slot_bytes[i], guard_req_);
+        if (evo_plan_ && stride > (uint64_t) std::numeric_limits<int64_t>::max() - off[i]) {
+            err = "ExpertCache: guarded sized arena byte count overflows";
+            return false;
+        }
+        off[i + 1] = off[i] + stride;
         mx = slot_bytes[i] > mx ? slot_bytes[i] : mx;
     }
     // one allocation of the summed size, through the uniform path's checks: n "slots" of 1 byte
@@ -716,6 +769,14 @@ bool ExpertCache::open_sized(const std::vector<int64_t>& slot_bytes, int64_t n_l
 }
 
 void ExpertCache::close() {
+    if (evo_reserved_) {
+        // The guarded path only admits one cudaMalloc arena. Failed release is
+        // not free capacity: retain its pointer and reservation for the caller.
+        if (base_ && cudaFree(base_) != cudaSuccess) return;
+        base_ = nullptr;
+        evo_plan_->release(evo_reference_);
+        evo_reserved_ = false;
+    }
 #if defined(STRATA_USE_HIP)
     if (blocking_staging_) (void) cudaFreeHost(blocking_staging_);
     blocking_staging_ = nullptr;

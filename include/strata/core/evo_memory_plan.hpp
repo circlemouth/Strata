@@ -48,7 +48,8 @@ struct EvoLedgerSnapshot {
 };
 
 // Callers must connect every relevant allocation and its future workspace before
-// claiming enforcement. Current use is offline planning and CPU regression tests.
+// claiming enforcement. The optional ExpertCache binding covers only its device arena; it is not
+// enabled by a runtime caller and is not whole-engine enforcement.
 class EvoMemoryPlan {
 public:
     explicit EvoMemoryPlan(const EvoBudget& budget);

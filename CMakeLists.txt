@@ -394,6 +394,14 @@ if(STRATA_BUILD_TESTS)
   target_include_directories(evo_memory_plan_test PRIVATE include)
   target_link_libraries(evo_memory_plan_test PRIVATE Threads::Threads)
   add_test(NAME evo_memory_plan_test COMMAND evo_memory_plan_test)
+  # Real cache open/close control flow with an isolated CPU-only CUDA test double.
+  # The compatibility define disables VMM, not an actual gfx906 or HIP build.
+  add_executable(expert_cache_evo_guard_test tests/core/expert_cache_evo_guard_test.cpp
+    src/core/expert_cache.cpp src/core/evo_memory_plan.cpp src/core/vmm.cpp)
+  target_include_directories(expert_cache_evo_guard_test PRIVATE tests/core/evo_fake_cuda include)
+  target_compile_definitions(expert_cache_evo_guard_test PRIVATE STRATA_HIP_GFX906)
+  target_link_libraries(expert_cache_evo_guard_test PRIVATE Threads::Threads)
+  add_test(NAME expert_cache_evo_guard_test COMMAND expert_cache_evo_guard_test)
   add_executable(run_manifest_test tests/core/run_manifest_test.cpp)
   target_include_directories(run_manifest_test PRIVATE include)
   add_test(NAME run_manifest_test COMMAND run_manifest_test)

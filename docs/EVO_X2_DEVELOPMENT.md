@@ -39,7 +39,7 @@ The default server behavior without the opt-in remains upstream's behavior.
 The existing API keys and access controls still apply; this option grants no
 additional access.
 
-## Offline memory planner
+## Memory accounting and cache checkpoint
 
 `EvoMemoryPlan` is a thread-safe byte-accounting primitive with independent host,
 GPU-addressable and ancestor-cgroup limits. Every backing has an identity, owner,
@@ -55,10 +55,30 @@ headroom sample denies additional allocations before they consume reserve.
 Five seconds classifies sustained pressure; it is not an admission grace period.
 
 This library is **not yet wired into all engine allocations or request admission**.
-It cannot enforce a runtime memory cap by itself. Do not advertise it as an active
-allocation guard. Full integration requires measured allocation ownership and
+It cannot enforce a runtime memory cap by itself. No startup configuration or
+production caller enables it. Full integration requires measured allocation ownership and
 startup/steady-state peaks for every target session, draft, KV, prefill, graph,
 snapshot, cache, runtime and co-resident workload.
+
+An explicit `ExpertCache::set_evo_memory_plan` binding is a native integration
+checkpoint for the shared GPU engine's non-VMM `cudaMalloc` arena. It reserves the
+exact requested arena bytes **before** allocation, commits after allocation,
+cancels failed allocations and releases accounting only after successful
+`cudaFree`. Two caches sharing the same plan cannot double-book capacity; a
+duplicate backing identity is refused. `open_sized` charges alignment and guards.
+Unknown device capacity, unavailable host headroom, overflow, mismatched byte
+estimates and segmented/VMM ownership are refused. A failed device free retains
+the pointer and accounting, and prevents a new allocation on that cache.
+
+This checkpoint covers only that arena. Host residency tables, HIP pinned staging,
+runtime overhead and every other engine allocation still need separate ownership
+and reservations. The binding does not discover current cgroups or continuously
+sample headroom, and it is not connected to startup/profile resolution. Callers
+must provide measured budgets and charges and must not externally release the
+cache-owned ledger reference. The SYCL-specific cache implementation is not wired.
+The CPU test executes real `ExpertCache::open/open_sized/close` with fault-injected
+runtime calls; it proves control-flow behavior, not GPU memory ordering or a HIP
+build. No default behavior or runtime mode has been enabled.
 
 ## Build and verification
 

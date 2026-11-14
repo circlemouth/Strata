@@ -26,9 +26,11 @@
 #include <cstdint>
 #include <memory>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include "strata/core/vmm.hpp"
+#include "strata/core/evo_memory_plan.hpp"
 
 namespace strata::core {
 
@@ -101,6 +103,23 @@ public:
     /// Byte offset of each slot in the arena (null for uniform slots).
     const uint64_t* slot_offsets() const { return off_.empty() ? nullptr : off_.data(); }
     void close();
+
+    /// Development checkpoint: bind an already validated, shared physical-memory
+    /// plan to this cache arena. No default caller enables it. The description
+    /// must price the exact final allocation, including sized-slot padding/guards.
+    /// Host metadata and HIP staging are separate allocations, NOT covered here.
+    /// Guarded VMM/segmented caches are refused until their ownership is wired.
+    bool set_evo_memory_plan(std::shared_ptr<EvoMemoryPlan> plan, const EvoBacking& backing,
+                             const std::string& reference, std::string& err) {
+        if (base_ || evo_reserved_ || !plan || reference.empty()) {
+            err = "ExpertCache: EVO binding requires a closed cache, known plan and reference";
+            return false;
+        }
+        evo_plan_ = std::move(plan);
+        evo_backing_ = backing;
+        evo_reference_ = reference;
+        return true;
+    }
 
     bool valid() const { return base_ != nullptr; }
     /// The slots usable now: all of them, unless `shrink` gave the tail's VRAM back (#533) - then the ones wholly
@@ -244,6 +263,10 @@ public:
     }
 
 private:
+    std::shared_ptr<EvoMemoryPlan> evo_plan_;
+    EvoBacking evo_backing_;
+    std::string evo_reference_;
+    bool evo_reserved_ = false;
 #if defined(STRATA_USE_HIP)
     bool ensure_blocking_staging(std::size_t bytes, std::string& err);
     uint8_t* blocking_staging_ = nullptr;
