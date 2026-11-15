@@ -12,6 +12,7 @@ import http.client
 import ipaddress
 import json
 import re
+import socket
 import sys
 import threading
 import time
@@ -126,28 +127,94 @@ class LoopbackHTTPTransport:
     def open(self, request, send_s):
         if not self.enabled:
             raise ValueError("loopback networking requires explicit opt-in")
+        deadline = send_s + self.maximum_duration_s
+        expired = threading.Event()
+
+        def timeout(stamp=None):
+            remaining = deadline - (time.monotonic() if stamp is None else stamp)
+            if remaining <= 0 or expired.is_set():
+                raise TimeoutError("maximum capture duration exceeded")
+            return min(self.socket_timeout_s, remaining)
+
         # http.client does not consult HTTP_PROXY, netrc, browser or credential stores.
-        connection = http.client.HTTPConnection(self.host, self.port, timeout=self.socket_timeout_s)
+        connection = http.client.HTTPConnection(self.host, self.port, timeout=timeout())
+        response = connected_socket = watchdog = None
+        closed = False
+
+        def close():
+            nonlocal closed
+            if closed:
+                return
+            closed = True
+            if watchdog is not None:
+                watchdog.cancel()
+                watchdog.join()
+            try:
+                if response is not None:
+                    response.close()
+            finally:
+                try:
+                    connection.close()
+                finally:
+                    if connected_socket is not None:
+                        connected_socket.close()
+
         try:
+            # Bound connect separately, then retain the socket: getresponse() can
+            # detach it from the connection when the server sends Connection: close.
+            connection.connect()
+            connected_socket = connection.sock
+            connected_socket.settimeout(timeout())
+
+            def expire():
+                expired.set()
+                try:
+                    connected_socket.shutdown(socket.SHUT_RDWR)
+                except OSError:
+                    pass  # It may already have reached EOF or been closed.
+
+            # Socket idle timeouts alone do not bound trickling headers or chunk
+            # framing. Shutdown interrupts those reads without a lingering worker.
+            timer = threading.Timer(max(0, deadline - time.monotonic()), expire)
+            timer.daemon = True
+            timer.start()
+            watchdog = timer
+            connected_socket.settimeout(timeout())
             connection.request("POST", ROUTE, body=request["wire"],
                                headers={"Content-Type": "application/json", "Accept": "text/event-stream", "Connection": "close"})
+            connected_socket.settimeout(timeout())
             response = connection.getresponse()
+            content_type = response.getheader("Content-Type", "")
+            timeout()
         except Exception:
-            connection.close()
+            try:
+                timeout()  # Normalize a watchdog-induced EOF/reset to a timeout.
+            finally:
+                close()
+            raise
+        except BaseException:
+            close()
             raise
 
         def frames():
-            if response.status != 200:
-                return  # Do not retain an authentication page, redirect body or error text.
-            while True:
-                if time.monotonic() - send_s > self.maximum_duration_s:
-                    raise TimeoutError("maximum capture duration exceeded")
-                data = response.read1(65536)
-                stamp = time.monotonic()
-                if not data:
-                    return
-                yield stamp, data
-        return StreamResponse(response.status, response.getheader("Content-Type", ""), frames(), connection.close)
+            try:
+                if response.status != 200:
+                    return  # Do not retain an authentication page, redirect body or error text.
+                while True:
+                    timeout()
+                    try:
+                        data = response.read1(65536)
+                    except Exception:
+                        timeout()
+                        raise
+                    stamp = time.monotonic()
+                    timeout(stamp)  # Never accept bytes or EOF received past the deadline.
+                    if not data:
+                        return
+                    yield stamp, data
+            finally:
+                close()
+        return StreamResponse(response.status, content_type, frames(), close)
 
 
 def _capture(request, transport, send_s):

@@ -1,16 +1,19 @@
 import copy
 import hashlib
 import json
+import socket
 import subprocess
 import sys
 import tempfile
+import threading
+import time
 import unittest
 from pathlib import Path
 from unittest import mock
 
 from bench.evo_x2.correlation import correlate_pair
 from bench.evo_x2.runner import (FakeStreamTransport, LoopbackHTTPTransport,
-                                 capture_pair, loopback_endpoint, prepare_request)
+                                 _capture, capture_pair, loopback_endpoint, prepare_request)
 from bench.evo_x2.sse import SSEDecoder, StreamCapture
 
 
@@ -292,7 +295,7 @@ class RunnerBoundaries(unittest.TestCase):
         response.getheader.return_value = "text/html"
         with mock.patch("http.client.HTTPConnection", return_value=connection), mock.patch("socket.socket", side_effect=AssertionError("network forbidden")):
             adapter = LoopbackHTTPTransport("http://127.0.0.1:8080/v1/chat/completions", enabled=True)
-            opened = adapter.open(prepare_request(request()), 0)
+            opened = adapter.open(prepare_request(request()), time.monotonic())
             self.assertEqual(list(opened.frames), [])
             opened.close()
         self.assertEqual(connection.request.call_count, 1)
@@ -335,6 +338,7 @@ class RunnerBoundaries(unittest.TestCase):
             self.assertEqual(list(opened.frames), [(10, b"data: [DONE]\n\n")])
             opened.close()
         connection.close.assert_called_once()
+        response.close.assert_called_once()
 
     def test_connection_failure_closes_without_retry(self):
         connection = mock.Mock()
@@ -342,7 +346,7 @@ class RunnerBoundaries(unittest.TestCase):
         with mock.patch("http.client.HTTPConnection", return_value=connection), mock.patch("socket.socket", side_effect=AssertionError("network forbidden")):
             adapter = LoopbackHTTPTransport("http://127.0.0.1:8080/v1/chat/completions", enabled=True)
             with self.assertRaises(TimeoutError):
-                adapter.open(prepare_request(request()), 10)
+                adapter.open(prepare_request(request()), time.monotonic())
         connection.close.assert_called_once()
         self.assertEqual(connection.request.call_count, 1)
 
@@ -355,6 +359,168 @@ class RunnerBoundaries(unittest.TestCase):
         self.assertFalse(result["api_streams_complete"])
         self.assertIsNone(result["records"][0]["status_code"])
         self.assertIn("transport_failure:TimeoutError", result["records"][0]["errors"])
+
+
+class HTTPDeadlines(unittest.TestCase):
+    endpoint = "http://127.0.0.1:8080/v1/chat/completions"
+
+    def test_expired_before_open_never_connects(self):
+        adapter = LoopbackHTTPTransport(self.endpoint, enabled=True, maximum_duration_s=1)
+        with mock.patch("time.monotonic", return_value=11), mock.patch("http.client.HTTPConnection") as factory:
+            with self.assertRaisesRegex(TimeoutError, "maximum capture duration"):
+                adapter.open(prepare_request(request()), 10)
+        factory.assert_not_called()
+
+    def test_connect_is_bounded_and_late_connect_never_sends(self):
+        for idle, expected in ((10, 1), (.25, .25)):
+            with self.subTest(idle=idle):
+                now = [10]
+                connection = mock.Mock()
+                connection.connect.side_effect = lambda: now.__setitem__(0, 11)
+                with mock.patch("time.monotonic", side_effect=lambda: now[0]), mock.patch(
+                        "http.client.HTTPConnection", return_value=connection) as factory:
+                    adapter = LoopbackHTTPTransport(self.endpoint, enabled=True,
+                                                    socket_timeout_s=idle, maximum_duration_s=1)
+                    with self.assertRaises(TimeoutError):
+                        adapter.open(prepare_request(request()), 10)
+                self.assertEqual(factory.call_args.kwargs["timeout"], expected)
+                connection.connect.assert_called_once()
+                connection.request.assert_not_called()
+                connection.close.assert_called_once()
+                connection.sock.close.assert_called_once()
+
+    def test_late_body_bytes_and_eof_are_rejected_and_closed(self):
+        for data in (b"data: [DONE]\n\n", b""):
+            with self.subTest(data=data):
+                now = [10]
+                connection, timer = mock.Mock(), mock.Mock()
+                response = connection.getresponse.return_value
+                response.status = 200
+
+                def read(size):
+                    now[0] = 11
+                    return data
+
+                response.read1.side_effect = read
+                with mock.patch("time.monotonic", side_effect=lambda: now[0]), mock.patch(
+                        "http.client.HTTPConnection", return_value=connection), mock.patch(
+                        "threading.Timer", return_value=timer):
+                    adapter = LoopbackHTTPTransport(self.endpoint, enabled=True, maximum_duration_s=1)
+                    opened = adapter.open(prepare_request(request()), 10)
+                    with self.assertRaises(TimeoutError):
+                        next(opened.frames)
+                    opened.close()  # Cleanup remains idempotent after generator failure.
+                response.close.assert_called_once()
+                connection.close.assert_called_once()
+                timer.cancel.assert_called_once()
+                timer.join.assert_called_once()
+
+    def test_transport_errors_cancel_and_join_watchdog_without_retry(self):
+        for stage in ("request", "getresponse", "getheader", "read1"):
+            with self.subTest(stage=stage):
+                connection, timer = mock.Mock(), mock.Mock()
+                response = connection.getresponse.return_value
+                response.status = 200
+                target = connection if stage in ("request", "getresponse") else response
+                getattr(target, stage).side_effect = OSError("synthetic transport error")
+                with mock.patch("time.monotonic", return_value=10), mock.patch(
+                        "http.client.HTTPConnection", return_value=connection), mock.patch(
+                        "threading.Timer", return_value=timer):
+                    adapter = LoopbackHTTPTransport(self.endpoint, enabled=True, maximum_duration_s=1)
+                    with self.assertRaisesRegex(OSError, "synthetic transport error"):
+                        opened = adapter.open(prepare_request(request()), 10)
+                        next(opened.frames)
+                connection.connect.assert_called_once()
+                connection.request.assert_called_once()
+                connection.close.assert_called_once()
+                connection.sock.close.assert_called_once()
+                timer.cancel.assert_called_once()
+                timer.join.assert_called_once()
+                if stage in ("getheader", "read1"):
+                    response.close.assert_called_once()
+
+    def socketpair_capture(self, prefix=b"", trickle=b"", *, duration=.1, idle=2):
+        """Exercise real HTTP buffering over local IPC, never a TCP server or GPU."""
+        client, peer = socket.socketpair()
+        stop = threading.Event()
+        timers = []
+        timer_type = threading.Timer
+
+        def make_timer(*args, **kwargs):
+            timer = timer_type(*args, **kwargs)
+            timers.append(timer)
+            return timer
+
+        def connect(connection):
+            self.assertEqual((connection.host, connection.port), ("127.0.0.1", 8080))
+            client.settimeout(connection.timeout)
+            connection.sock = client
+
+        def serve():
+            with peer:
+                peer.settimeout(1)
+                try:
+                    peer.sendall(prefix)
+                    # Finite even with the old implementation, so a regression
+                    # fails instead of leaving the test's sender stuck forever.
+                    end = time.monotonic() + .8
+                    while time.monotonic() < end and not stop.wait(.01):
+                        if trickle:
+                            peer.sendall(trickle)
+                except OSError:
+                    pass  # Deadline shutdown or early SSE completion is expected.
+
+        sender = threading.Thread(target=serve, daemon=True)
+        sender.start()
+        try:
+            with mock.patch("http.client.HTTPConnection.connect", autospec=True, side_effect=connect) as factory, mock.patch(
+                    "threading.Timer", side_effect=make_timer):
+                adapter = LoopbackHTTPTransport(self.endpoint, enabled=True,
+                                                socket_timeout_s=idle, maximum_duration_s=duration)
+                start = time.monotonic()
+                result = _capture(prepare_request(request()), adapter, start)
+                elapsed = time.monotonic() - start
+            factory.assert_called_once()
+            self.assertEqual(client.fileno(), -1, "response/socket descriptor leaked")
+            self.assertEqual(len(timers), 1)
+            self.assertFalse(timers[0].is_alive(), "deadline watchdog was not joined")
+            self.assertLess(elapsed, .5, "capture exceeded its short deadline")
+        finally:
+            stop.set()
+            sender.join(1)
+            client.close()
+            peer.close()
+        self.assertFalse(sender.is_alive(), "test sender did not stop")
+        return result
+
+    def test_delayed_headers_stop_before_long_socket_timeout(self):
+        result = self.socketpair_capture()
+        self.assertIsNone(result["status_code"])
+        self.assertIn("transport_failure:TimeoutError", result["errors"])
+
+    def test_trickling_headers_cannot_extend_absolute_deadline(self):
+        result = self.socketpair_capture(b"HTTP/1.1 200 OK\r\nX-Slow: ", b"x")
+        self.assertIsNone(result["status_code"])
+        self.assertIn("transport_failure:TimeoutError", result["errors"])
+
+    def test_trickling_chunk_framing_uses_retained_socket(self):
+        result = self.socketpair_capture(
+            b"HTTP/1.1 200 OK\r\nContent-Type: text/event-stream\r\n"
+            b"Connection: close\r\nTransfer-Encoding: chunked\r\n\r\n", b"1")
+        self.assertEqual(result["status_code"], 200)
+        self.assertIn("transport_failure:TimeoutError", result["errors"])
+        self.assertFalse(result["api_stream_complete"])
+
+    def test_shorter_socket_idle_timeout_is_preserved(self):
+        result = self.socketpair_capture(duration=2, idle=.03)
+        self.assertIn("transport_failure:TimeoutError", result["errors"])
+
+    def test_done_closes_response_and_watchdog_without_waiting_for_peer(self):
+        body = "".join(row["data"] for row in frames()).encode()
+        headers = ("HTTP/1.1 200 OK\r\nContent-Type: text/event-stream\r\n"
+                   "Connection: close\r\nContent-Length: " + str(len(body)) + "\r\n\r\n").encode()
+        result = self.socketpair_capture(headers + body, duration=2)
+        self.assertTrue(result["api_stream_complete"], result["errors"])
 
 
 class Correlation(unittest.TestCase):
