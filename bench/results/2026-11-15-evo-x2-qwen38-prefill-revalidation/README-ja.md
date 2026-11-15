@@ -100,13 +100,13 @@ GPU timeline は純粋な kernel 実行時間ではない。特に P2 の待機�
 - 従来版の停止確認：22:01:43 JST。復元確認：23:23:30 JST。
 - 試験用 container の不在を確認後、元の unit / image / config へ戻した。engine 0.1.58、context 131072、slots 2、復元確認用の最小 canary が成功した。
 - 併存 OCR の container identity・image・health は変化していない。watchdog と試験 controller は終了し、試験用 container は残っていない。
-- 新しい本番設定への切替、追加の停止、push はしていない。
+- 夜間試験中に、新しい本番設定への切替、追加の停止、push はしていない。
 - 続けるなら、まず熱条件と再試験計画を確認する。安全上限を変えず、欠けた反復、診断を外した性能再確認、出力品質評価を分けて行う。本番採用は別途承認が必要。
 
 ## 再現情報
 
 - 所有者 fork：<https://github.com/circlemouth/Strata>
-- 作業 branch：`evo-x2-prefill-revalidation-20261115`（ローカル、未 push）
+- 作業 branch：`evo-x2-prefill-revalidation-20261115`（評価用。本番 branch へは反映していない）
 - 実装・評価構成：`316d0846f21e4bf7c77104d8cddb68613110cb6a`
 - deadline 修正：`d9851ab545784ad435f982932d7adf288f764851`
 - B upstream：`13eedf552417a6a791a7d13c6597e24300ee3a09`
