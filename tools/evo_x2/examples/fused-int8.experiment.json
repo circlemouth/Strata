@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "status": "unqualified_experiment",
+  "deployable": false,
+  "architecture": "gfx1151",
+  "backend": "hip",
+  "description": "Explicitly select implemented native fused int8 prompt-expert kernels on Linux; no direct-FP16 implementation is claimed.",
+  "common_environment": {
+    "STRATA_PF_FUSED_NATIVE": "1",
+    "STRATA_PF_F16": "0",
+    "STRATA_PF_DM16": "0"
+  },
+  "arms": {
+    "baseline": {
+      "STRATA_PF_FUSED": "0"
+    },
+    "fused-int8": {
+      "STRATA_PF_FUSED": "1"
+    }
+  },
+  "diagnostic_environment": {
+    "STRATA_PF_FUSED_TRACE": "1",
+    "STRATA_PREFILL_TIMING": "1",
+    "STRATA_HIPBLASLT_VERBOSE": "1"
+  },
+  "requires": [
+    "fresh process for every arm",
+    "same binary, server, assets, tuning table and resource limits",
+    "verify all qtype pairs and actual dispatch",
+    "GPU correctness and 128K P1/P2 qualification",
+    "explicit separate approval before production use"
+  ]
+}

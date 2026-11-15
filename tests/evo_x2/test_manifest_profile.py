@@ -93,6 +93,38 @@ class ManifestTests(unittest.TestCase):
         self.assertEqual(result["environment"], {"STRATA_PF_FUSED": "0"})
         self.assertNotIn("DO-NOT-COPY", json.dumps(result))
 
+    def test_prefill_diagnostics_inventory_is_explicit_not_execution_proof(self):
+        proc = self.root / "proc" / "123"
+        proc.mkdir(parents=True)
+        (proc / "stat").write_text('123 (fixture) S ' + ' '.join(['0'] * 18 + ['456', '0']))
+        (proc / "exe").symlink_to(self.model)
+        (proc / "environ").write_bytes(
+            b"STRATA_PF_F16=0\0STRATA_PF_DM16=0\0STRATA_PF_FUSED_TRACE=1\0"
+            b"STRATA_PREFILL_TIMING=0\0PRIVATE_TOKEN=DO-NOT-COPY\0")
+        self.selection.update({"pid": 123, "environment": ["STRATA_PF_F16", "STRATA_PF_DM16",
+            "STRATA_PF_FUSED_TRACE", "STRATA_PREFILL_TIMING", "STRATA_HIPBLASLT_VERBOSE"]})
+        result = capture(self.selection, self.root / "proc")
+        self.assertEqual(result["environment"], {"STRATA_PF_F16": "0", "STRATA_PF_DM16": "0",
+                         "STRATA_PF_FUSED_TRACE": "1", "STRATA_PREFILL_TIMING": "0"})
+        self.assertEqual(result["status"], "inventory_only")
+        self.assertIn("quality_and_performance", result["unverified"])
+        self.assertNotIn("DO-NOT-COPY", json.dumps(result))
+        # Literal values are preserved. Presence-based flags are not normalized to booleans.
+        for unknown in ("STRATA_EVO_PF_IQ_MODE", "LD_PRELOAD", "PRIVATE_TOKEN"):
+            self.selection["environment"] = [unknown]
+            with self.assertRaises(ValueError):
+                capture(self.selection, self.root / "proc")
+
+    def test_fused_experiment_changes_one_supported_selector(self):
+        recipe = load_json(ROOT / "tools/evo_x2/examples/fused-int8.experiment.json")
+        self.assertEqual(recipe["status"], "unqualified_experiment")
+        self.assertFalse(recipe["deployable"])
+        self.assertEqual(recipe["arms"], {"baseline": {"STRATA_PF_FUSED": "0"},
+                                        "fused-int8": {"STRATA_PF_FUSED": "1"}})
+        self.assertEqual(recipe["common_environment"]["STRATA_PF_F16"], "0")
+        self.assertEqual(recipe["common_environment"]["STRATA_PF_DM16"], "0")
+        self.assertNotIn("STRATA_EVO_PF_IQ_MODE", json.dumps(recipe))
+
     def test_environment_without_pid_refused(self):
         self.selection["environment"] = ["STRATA_PF_FUSED"]
         with self.assertRaises(ValueError):

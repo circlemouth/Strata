@@ -46,6 +46,9 @@
 #include <cstring>
 #include <mutex>
 #include <type_traits>
+#if defined(__HIPCC__)
+#include <vector>
+#endif
 
 namespace strata::prefill::fused {
 namespace {
@@ -2196,6 +2199,35 @@ void experts_native(const Batch& b, const NativeGeom& g, int n_expert, int64_t n
 #undef STRATA_NW_D
 #undef STRATA_F16_LAUNCH
         ck(cudaGetLastError(), "experts_native");
+        // Opt-in evidence of the branch actually launched, not a requested setting. No device
+        // query or synchronization is added. Each thread reports each device/type/route once.
+        static const bool trace = [] {
+            const char* v = std::getenv("STRATA_PF_FUSED_TRACE");
+            return v && std::strcmp(v, "1") == 0;
+        }();
+        if (trace) {
+            const int gu_route = f16 && f16kq::covers(g.gu_type) ? 2 : f16 && f16_gu(g.gu_type) ? 1 : 0;
+            const int down_route = f16 && f16kq::covers_down(g.d_type) ? 2 :
+                                   ((f16 && f16_d(g.d_type)) || f16_q8d) ? 1 : 0;
+            const unsigned device_slot = (unsigned) (&d - g_dev);
+            const unsigned bn_gu = gu_route ? (f16_wide ? 2 * kTileRows : kTileRows) : kTileRows;
+            const unsigned bn_down = down_route ? (f16_wide ? 2 * kTileRows : kTileRows) : kTileRows;
+            const uint64_t key = (uint64_t) device_slot | ((uint64_t) g.gu_type << 5) |
+                                 ((uint64_t) g.d_type << 13) | ((uint64_t) gu_route << 21) |
+                                 ((uint64_t) down_route << 23) | ((uint64_t) d16 << 25) |
+                                 ((uint64_t) (bn_gu > kTileRows) << 26) |
+                                 ((uint64_t) (bn_down > kTileRows) << 27);
+            static thread_local std::vector<uint64_t> seen;
+            if (std::find(seen.begin(), seen.end(), key) == seen.end()) {
+                seen.push_back(key);
+                const char* routes[] = {"wmma-int8", "wmma-f16", "wmma-f16-kq"};
+                std::fprintf(stderr, "strata fused dispatch: device_slot=%u gu_qtype=%d down_qtype=%d "
+                                     "gate_up=%s down=%s dm=%s bn_gu=%u bn_down=%u first_routed_rows=%lld "
+                                     "activation_staging=int8 launch_checked=1 completion_checked=0\n",
+                             device_slot, g.gu_type, g.d_type, routes[gu_route], routes[down_route],
+                             d16 ? "fp16" : "fp32", bn_gu, bn_down, (long long) n);
+            }
+        }
         return;
     }
 #endif

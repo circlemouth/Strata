@@ -139,6 +139,41 @@
             "0",
             "1"
           ]
+        },
+        "STRATA_PF_F16": {
+          "type": "string",
+          "enum": [
+            "0",
+            "1"
+          ]
+        },
+        "STRATA_PF_DM16": {
+          "type": "string",
+          "enum": [
+            "0",
+            "1"
+          ]
+        },
+        "STRATA_PF_FUSED_TRACE": {
+          "type": "string",
+          "enum": [
+            "0",
+            "1"
+          ]
+        },
+        "STRATA_PREFILL_TIMING": {
+          "type": "string",
+          "enum": [
+            "0",
+            "1"
+          ]
+        },
+        "STRATA_HIPBLASLT_VERBOSE": {
+          "type": "string",
+          "enum": [
+            "0",
+            "1"
+          ]
         }
       },
       "required": []

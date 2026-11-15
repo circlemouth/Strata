@@ -28,7 +28,9 @@ CONFIG_FIELDS = {
     "presence_penalty": {"type": "number"},
 }
 AUTH_FIELDS = ("api_key", "api-key", "token", "password", "secret", "authorization")
-ENV_FIELDS = ("STRATA_PF_FUSED", "STRATA_PF_FUSED_NATIVE", "STRATA_PREFILL_MMQ")
+ENV_FIELDS = ("STRATA_PF_FUSED", "STRATA_PF_FUSED_NATIVE", "STRATA_PREFILL_MMQ",
+              "STRATA_PF_F16", "STRATA_PF_DM16", "STRATA_PF_FUSED_TRACE",
+              "STRATA_PREFILL_TIMING", "STRATA_HIPBLASLT_VERBOSE")
 
 
 def hash_file(path):

@@ -83,7 +83,12 @@
         "enum": [
           "STRATA_PF_FUSED",
           "STRATA_PF_FUSED_NATIVE",
-          "STRATA_PREFILL_MMQ"
+          "STRATA_PREFILL_MMQ",
+          "STRATA_PF_F16",
+          "STRATA_PF_DM16",
+          "STRATA_PF_FUSED_TRACE",
+          "STRATA_PREFILL_TIMING",
+          "STRATA_HIPBLASLT_VERBOSE"
         ]
       },
       "uniqueItems": true
