@@ -1,0 +1,57 @@
+{
+  "device": "AMD Radeon 8060S (gfx1151), vendor 1002 / device 1586",
+  "method": "Arithmetic mean over samples within client request interval; driver-wide amdgpu busy is not per-process utilization or kernel profiling. No NVIDIA device was used for these reported inference runs.",
+  "cases": {
+    "A-P1": {
+      "samples": 221,
+      "window_client_start_mono": 304527.988028707,
+      "window_client_end_mono": 304761.228520812,
+      "busy_percent": {
+        "min": 59,
+        "mean": 99.55203619909503,
+        "max": 100,
+        "samples_at_100": 197
+      },
+      "gfx_clock_mhz_mean": 2375.153846153846,
+      "gpu_temp_c_max": 78.0,
+      "cpu_temp_c_max": 86.75,
+      "available_gib_min": 42.35887145996094,
+      "host_pswpout_delta_pages": 0,
+      "candidate_pswpout_delta_pages": 0
+    },
+    "C-P1": {
+      "samples": 217,
+      "window_client_start_mono": 304828.244433462,
+      "window_client_end_mono": 305070.902061652,
+      "busy_percent": {
+        "min": 59,
+        "mean": 99.5668202764977,
+        "max": 100,
+        "samples_at_100": 194
+      },
+      "gfx_clock_mhz_mean": 2374.9078341013824,
+      "gpu_temp_c_max": 79.0,
+      "cpu_temp_c_max": 89.375,
+      "available_gib_min": 43.341304779052734,
+      "host_pswpout_delta_pages": 0,
+      "candidate_pswpout_delta_pages": 0
+    },
+    "C-P2": {
+      "samples": 436,
+      "window_client_start_mono": 305072.099909832,
+      "window_client_end_mono": 305559.768364939,
+      "busy_percent": {
+        "min": 57,
+        "mean": 99.39908256880734,
+        "max": 100,
+        "samples_at_100": 389
+      },
+      "gfx_clock_mhz_mean": 2359.6146788990827,
+      "gpu_temp_c_max": 80.0,
+      "cpu_temp_c_max": 86.125,
+      "available_gib_min": 43.11149597167969,
+      "host_pswpout_delta_pages": 0,
+      "candidate_pswpout_delta_pages": 0
+    }
+  }
+}

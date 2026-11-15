@@ -1,0 +1,110 @@
+{
+  "semantics": "Server event intervals. Reading-to-first-token includes instrumentation overhead and is not identical to native prompt_ms. Queue admission is distinct from waiting for the prefill turn after admission. IDs replaced with case-local labels.",
+  "requests": [
+    {
+      "request": "P1",
+      "events": [
+        {
+          "event": "queued",
+          "utc": "2026-11-15T02:43:02.169145+00:00",
+          "elapsed_since_queued_s": 0.0
+        },
+        {
+          "event": "admitted",
+          "utc": "2026-11-15T02:43:02.169162+00:00",
+          "elapsed_since_queued_s": 1.6927719116210938e-05
+        },
+        {
+          "event": "reading",
+          "utc": "2026-11-15T02:43:02.182382+00:00",
+          "elapsed_since_queued_s": 0.013237476348876953
+        },
+        {
+          "event": "first_token",
+          "utc": "2026-11-15T02:47:02.862406+00:00",
+          "elapsed_since_queued_s": 240.69326162338257
+        },
+        {
+          "event": "finished",
+          "utc": "2026-11-15T02:47:04.778093+00:00",
+          "elapsed_since_queued_s": 242.60894870758057
+        }
+      ],
+      "admission_wait_s": 1.6927719116210938e-05,
+      "admitted_to_reading_s": 0.013220548629760742,
+      "queued_to_reading_s": 0.013237476348876953,
+      "reading_to_first_token_s": 240.6800241470337,
+      "first_token_to_finished_s": 1.915687084197998
+    },
+    {
+      "request": "P2-1",
+      "events": [
+        {
+          "event": "queued",
+          "utc": "2026-11-15T02:47:06.188730+00:00",
+          "elapsed_since_queued_s": 0.0
+        },
+        {
+          "event": "admitted",
+          "utc": "2026-11-15T02:47:06.188755+00:00",
+          "elapsed_since_queued_s": 2.5033950805664062e-05
+        },
+        {
+          "event": "reading",
+          "utc": "2026-11-15T02:47:06.205343+00:00",
+          "elapsed_since_queued_s": 0.016613245010375977
+        },
+        {
+          "event": "first_token",
+          "utc": "2026-11-15T02:51:08.459354+00:00",
+          "elapsed_since_queued_s": 242.2706241607666
+        },
+        {
+          "event": "finished",
+          "utc": "2026-11-15T02:51:17.777705+00:00",
+          "elapsed_since_queued_s": 251.5889754295349
+        }
+      ],
+      "admission_wait_s": 2.5033950805664062e-05,
+      "admitted_to_reading_s": 0.016588211059570312,
+      "queued_to_reading_s": 0.016613245010375977,
+      "reading_to_first_token_s": 242.25401091575623,
+      "first_token_to_finished_s": 9.31835126876831
+    },
+    {
+      "request": "P2-2",
+      "events": [
+        {
+          "event": "queued",
+          "utc": "2026-11-15T02:47:06.213550+00:00",
+          "elapsed_since_queued_s": 0.0
+        },
+        {
+          "event": "admitted",
+          "utc": "2026-11-15T02:47:06.213562+00:00",
+          "elapsed_since_queued_s": 1.2159347534179688e-05
+        },
+        {
+          "event": "reading",
+          "utc": "2026-11-15T02:51:09.128950+00:00",
+          "elapsed_since_queued_s": 242.91540026664734
+        },
+        {
+          "event": "first_token",
+          "utc": "2026-11-15T02:55:10.872882+00:00",
+          "elapsed_since_queued_s": 484.65933203697205
+        },
+        {
+          "event": "finished",
+          "utc": "2026-11-15T02:55:13.643558+00:00",
+          "elapsed_since_queued_s": 487.43000745773315
+        }
+      ],
+      "admission_wait_s": 1.2159347534179688e-05,
+      "admitted_to_reading_s": 242.9153881072998,
+      "queued_to_reading_s": 242.91540026664734,
+      "reading_to_first_token_s": 241.7439317703247,
+      "first_token_to_finished_s": 2.7706754207611084
+    }
+  ]
+}

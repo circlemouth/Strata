@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "classification": "Non-standard, one-off synthetic matched-request comparison; not production qualification",
+  "active_requests_P1": 1,
+  "server_slots_P1": 2,
+  "active_requests_P2": 2,
+  "server_slots_P2": 2,
+  "prompt_tokens": 130552,
+  "cached_tokens": 0,
+  "P1": {
+    "A": {
+      "wall_s": 233.24049210501835,
+      "ttft_s": 231.7613680360373,
+      "cache_n": 0,
+      "prompt_n": 130552,
+      "prompt_ms": 231659.7,
+      "prompt_per_second": 563.6,
+      "predicted_n": 41,
+      "predicted_ms": 1511.3,
+      "predicted_per_second": 27.1,
+      "output_tokens": 41
+    },
+    "C": {
+      "wall_s": 242.6576281900052,
+      "ttft_s": 240.74154217302566,
+      "cache_n": 0,
+      "prompt_n": 130552,
+      "prompt_ms": 240638.4,
+      "prompt_per_second": 542.5,
+      "predicted_n": 53,
+      "predicted_ms": 1949.7,
+      "predicted_per_second": 27.2,
+      "output_tokens": 53
+    },
+    "prefill_rate_change_percent": -3.7437899219304516,
+    "native_prefill_duration_change_percent": 3.875814394994026,
+    "wall_change_percent": 4.037521958557133,
+    "same_request_sha256": true
+  },
+  "P2": {
+    "A_pair_wall_s": 474.0262682720204,
+    "C_pair_wall_s": 487.66845510702115,
+    "delta_s": 13.642186835000757,
+    "same_request_hashes_in_order": true,
+    "A_output_tokens": 83,
+    "C_output_tokens": 94,
+    "C_second_admitted_to_reading_s": 242.9153881072998,
+    "C_second_reading_to_first_token_s": 241.7439317703247
+  },
+  "limits": [
+    "Only one observation per cell; no uncertainty intervals or long-run stability claim.",
+    "Natural EOS: max_tokens=512 is a cap, not forced 512 outputs; output counts differ.",
+    "A official engine 0.1.58 versus C candidate 0.1.59.1; upstream-version, server, toolchain and resource-limit effects are not isolated from fork changes.",
+    "P1 means one active request with server slots=2, not a slots=1 configuration.",
+    "P2 completion does not prove simultaneous prefill or simultaneous decode; observed decode intervals did not overlap.",
+    "The earlier failed 480-second timeout had no equivalent event timeline. The successful rerun suggests a plausible wait+prefill budget explanation but does not prove the earlier cause.",
+    "Raw prompts, generated prose, private service configuration, account identifiers and local paths are not published.",
+    "No hardware inference, service/settings changes, kernel profiling, correctness evaluation or production adoption was performed for this publication."
+  ]
+}

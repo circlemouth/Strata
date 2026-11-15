@@ -1,0 +1,49 @@
+{
+  "backend": "hip",
+  "server_slots": 2,
+  "max_context_tokens": 131072,
+  "request_prompt_tokens": 130552,
+  "requested_max_output_tokens": 512,
+  "total_budget_with_guard": 131072,
+  "kv": "int8",
+  "kv_resident": 0,
+  "prefill_chunk_tokens": 2048,
+  "expert_cache_count": 19000,
+  "resident_budget_gib": 2,
+  "prompt_cache": 6,
+  "conversation_cache_mib": 2048,
+  "conversation_cache_slots": 4,
+  "spec": 4,
+  "adapt_every": 0,
+  "ple_io": "direct",
+  "reasoning_effort": "none",
+  "fit_max_tokens": false,
+  "candidate_evo_contract": true,
+  "env": {
+    "STRATA_HC_Q8": "0",
+    "STRATA_ROUTE_TAIL_SKIP": "0"
+  },
+  "sampling": {
+    "temperature": 0,
+    "top_k": 1,
+    "top_p": 1,
+    "seed": 42,
+    "min_p": 0,
+    "repetition_penalty": 1,
+    "presence_penalty": 0,
+    "frequency_penalty": 0,
+    "enable_thinking": false
+  },
+  "candidate_limits": {
+    "cpu_quota_cores": 16,
+    "memory_gib": 104,
+    "swap_gib": 0
+  },
+  "baseline_limits": "Original runtime limits; not equalized with candidate CPU/cgroup caps.",
+  "asset_identity": {
+    "service_alias": "strata-qwen3.8-flash-next-iq3s",
+    "native_gguf_basename": "Qwen3.8-Flash-Next-UD-IQ3_XXS-00001-of-00004.gguf",
+    "ple_gguf_basename": "Qwen3.8-Flash-Next-UD-IQ3_XXS-00004-of-00004.gguf",
+    "note": "The legacy iq3s alias is not a full description of the native GGUF. Existing pack/native assets were reused; full weight-content hashes were not newly computed. Do not classify this as a newly verified pure IQ3_S weight set."
+  }
+}

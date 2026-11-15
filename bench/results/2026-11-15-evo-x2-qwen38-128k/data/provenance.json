@@ -1,0 +1,242 @@
+{
+  "measurement_date": "2026-11-15",
+  "repository": "https://github.com/circlemouth/Strata",
+  "branch_at_measurement": "evo-x2-gfx1151",
+  "A": {
+    "engine_version": "0.1.58",
+    "build_id": "7be42963e6be+rocm",
+    "source_revision_reported": "7be42963e6be",
+    "full_source_commit": "not recorded in retained official binary metadata",
+    "engine_sha256_from_component_manifest": "1f22831cc4b017d4fa8e4662537e54125387abd829cacd939f9a3796b6a88e05",
+    "engine_bytes": 52350928,
+    "signature_reverification": "not performed during publication"
+  },
+  "C": {
+    "engine_version": "0.1.59.1",
+    "source_commit": "1fe214570764e46eba0d4b60c794d83b89cffd62",
+    "upstream_base_commit": "13eedf552417a6a791a7d13c6597e24300ee3a09",
+    "selective_kernel_reference_commit": "f557b5440fe345757cae69ede2ed34826da5e612",
+    "engine_sha256": "7258d4ba63d9d1a0dbb8776ccf8a4e7a1ed40c5fb69993caf06d4870cfa97565",
+    "engine_bytes": 56477616,
+    "compile_started_utc": "2026-11-14T21:50:31.666064+00:00",
+    "compile_finished_utc": "2026-11-14T21:54:49.311233+00:00",
+    "build_type": "Release",
+    "architecture": "gfx1151",
+    "hip_enabled": true,
+    "cuda_enabled": false,
+    "community_tuning_enabled": true
+  },
+  "hardware": {
+    "system": "GMKtec EVO-X2",
+    "processor": "Ryzen AI Max+ 395",
+    "gpu": "AMD Radeon 8060S",
+    "architecture": "gfx1151",
+    "memory_nominal_gb": 128,
+    "host_os_observed_at_publication": "Ubuntu 24.04.5 LTS",
+    "host_kernel_observed_at_publication": "7.0.0-34-generic",
+    "platform_observation_note": "Host OS/kernel read after the completed measurements, not asserted as a per-run immutable capture."
+  },
+  "runtime": {
+    "candidate_reuses_baseline_image": true,
+    "image_sha256": "sha256:b5f98d5272a8f91838bcb9d168ce7e2faafbbe9821fca28d6d22e10b8ebf8e2a",
+    "hipblaslt_version": 100401,
+    "candidate_build_image_os": "Ubuntu 24.04.4 LTS",
+    "candidate_build_vs_execution": "Build used the isolated ROCm toolchain image; trial execution reused the baseline runtime image. Exact retained image digest is recorded, not reconstructed from a current tag."
+  },
+  "measurement_events": {
+    "A-P1": [
+      {
+        "event": "A_CASE_STARTED",
+        "utc": "2026-11-15T02:38:01.834265+00:00",
+        "input_tokens": 130552,
+        "parallel": 1,
+        "server_slots": 2,
+        "max_output": 512
+      },
+      {
+        "event": "A_CASE_FINISHED",
+        "utc": "2026-11-15T02:41:55.624193+00:00",
+        "input_tokens": 130552,
+        "completed": true,
+        "wall_s": 233.24049210501835
+      }
+    ],
+    "A-P2": [
+      {
+        "event": "A_CASE_STARTED",
+        "utc": "2026-11-15T01:54:01.184629+00:00",
+        "input_tokens": 130552,
+        "parallel": 2,
+        "max_output": 512
+      },
+      {
+        "event": "A_CASE_FINISHED",
+        "utc": "2026-11-15T02:01:56.082874+00:00",
+        "input_tokens": 130552,
+        "completed": true,
+        "pair_tps": 0.17509578172231244
+      }
+    ],
+    "C": [
+      {
+        "event": "CASE_STARTED",
+        "utc": "2026-11-15T02:43:02.058527+00:00",
+        "case": "P1",
+        "input_tokens": 130552,
+        "parallel": 1,
+        "server_slots": 2,
+        "max_output": 512
+      },
+      {
+        "event": "CASE_FINISHED",
+        "utc": "2026-11-15T02:47:05.897476+00:00",
+        "case": "P1",
+        "input_tokens": 130552,
+        "completed": true,
+        "wall_s": 242.6576281900052
+      },
+      {
+        "event": "CASE_STARTED",
+        "utc": "2026-11-15T02:47:05.911921+00:00",
+        "case": "P2",
+        "input_tokens": 130552,
+        "parallel": 2,
+        "server_slots": 2,
+        "max_output": 512
+      },
+      {
+        "event": "CASE_FINISHED",
+        "utc": "2026-11-15T02:55:14.688469+00:00",
+        "case": "P2",
+        "input_tokens": 130552,
+        "completed": true,
+        "wall_s": 487.66845510702115
+      },
+      {
+        "event": "RESTORATION_VERIFIED",
+        "utc": "2026-11-15T02:55:43.592143+00:00",
+        "canary": true,
+        "OCR_unchanged": true
+      }
+    ]
+  },
+  "source_files": [
+    {
+      "source_relative_label": "runtime-p1-heavy/A-130552.json",
+      "sha256": "34a0a4f63f8a4c97ce2586fa03a029761f1301c3fe7aed72aeb52123d1cf4074",
+      "bytes": 970,
+      "last_modified_utc": "2026-11-15T02:41:55.105389+00:00",
+      "published_file": "data/A-P1.json",
+      "transformation": "none: byte-for-byte copy of numeric/hash-only result"
+    },
+    {
+      "source_relative_label": "runtime-trial-six/C-P1-130552.json",
+      "sha256": "b42e81a960a3cecca0c2987bd7e47af06224e7b5a727228cef5baccaf621bc15",
+      "bytes": 970,
+      "last_modified_utc": "2026-11-15T02:47:04.778905+00:00",
+      "published_file": "data/C-P1.json",
+      "transformation": "none: byte-for-byte copy of numeric/hash-only result"
+    },
+    {
+      "source_relative_label": "runtime-trial-five/A-heavy-gpu-once/A-130552.json",
+      "sha256": "ae44deb42c5e99acbe70e237d44b5ff5019911ac4ab001ccdc42c4877cb523ad",
+      "bytes": 1837,
+      "last_modified_utc": "2026-11-15T02:01:55.241901+00:00",
+      "published_file": "data/A-P2.json",
+      "transformation": "none: byte-for-byte copy of numeric/hash-only result"
+    },
+    {
+      "source_relative_label": "runtime-trial-six/C-P2-130552.json",
+      "sha256": "5fd55966e5c742085cd0315e2712ec50fe333e2e1bccbc9caefbc17c6619b9b4",
+      "bytes": 2255,
+      "last_modified_utc": "2026-11-15T02:55:13.645576+00:00",
+      "published_file": "data/C-P2.json",
+      "transformation": "none: byte-for-byte copy of numeric/hash-only result"
+    },
+    {
+      "source_relative_label": "runtime-trial-five/C-130552.json",
+      "sha256": "bcb0317e37fcdcc36933bc6f3a77c2bcf9743efc1ee6da7572a4761b9bf962d6",
+      "bytes": 990,
+      "last_modified_utc": "2026-11-15T01:42:48.937196+00:00",
+      "published_file": "data/C-P2-earlier-timeout.json",
+      "transformation": "none: byte-for-byte copy of numeric/hash-only result"
+    },
+    {
+      "source_relative_label": "runtime-trial-six/request-timeline.jsonl",
+      "sha256": "f0b773d3c0969e7cb2179f06d8b807e6538c56ee6d4d9b4075f683bda514b436",
+      "bytes": 1260488,
+      "last_modified_utc": "2026-11-15T02:55:14.687619+00:00",
+      "transformation": "allowlisted extraction only; raw source retained privately"
+    },
+    {
+      "source_relative_label": "runtime-p1-heavy/A-metrics.jsonl",
+      "sha256": "50ec79fe2cb146b1b05fa12851f86251462f301c1e00883f603a30fcb985a2bb",
+      "bytes": 434853,
+      "last_modified_utc": "2026-11-15T02:41:54.571992+00:00",
+      "transformation": "allowlisted extraction only; raw source retained privately"
+    },
+    {
+      "source_relative_label": "runtime-trial-six/metrics.jsonl",
+      "sha256": "5af5fd4f0f65b07d9ac5f7867efdb43a65155fe5d5ea36c1366717e58f28a4f3",
+      "bytes": 1335280,
+      "last_modified_utc": "2026-11-15T02:55:13.579574+00:00",
+      "transformation": "allowlisted extraction only; raw source retained privately"
+    },
+    {
+      "source_relative_label": "runtime-p1-heavy/A-baseline.json",
+      "sha256": "12c939f605434e5d134598f76a495b4be19edee5f4d5c914afdd367c6e34fad4",
+      "bytes": 11797,
+      "last_modified_utc": "2026-11-15T02:42:00.908417+00:00",
+      "transformation": "allowlisted extraction only; raw source retained privately"
+    },
+    {
+      "source_relative_label": "runtime-trial-five/A-heavy-gpu-once/A-baseline.json",
+      "sha256": "3aea90507080974ae3ba59ae809c1773724d0970d718298c46717c2c0841c5d2",
+      "bytes": 17658,
+      "last_modified_utc": "2026-11-15T02:02:01.339397+00:00",
+      "transformation": "allowlisted extraction only; raw source retained privately"
+    },
+    {
+      "source_relative_label": "runtime-trial-six/result.json",
+      "sha256": "d79fd5ca9d5584fd1e45ba0f349e6a30fe6cdfad57931baa6df2f441002bf893",
+      "bytes": 17481,
+      "last_modified_utc": "2026-11-15T02:55:43.592684+00:00",
+      "transformation": "allowlisted extraction only; raw source retained privately"
+    },
+    {
+      "source_relative_label": "runtime-p1-heavy/fixture-proof.json",
+      "sha256": "e8be854652de5ed5536f37165a6855982b555be17f8e2b005ac800968e87e2f5",
+      "bytes": 418,
+      "last_modified_utc": "2026-11-15T02:37:42.310466+00:00",
+      "transformation": "allowlisted extraction only; raw source retained privately"
+    },
+    {
+      "source_relative_label": "runtime-trial-six/candidate-config.json",
+      "sha256": "b9b02c420ee9d9345ebcb4313688dbff2e6d6d2ba4b5892575050a626645dd8d",
+      "bytes": 1384,
+      "last_modified_utc": "2026-11-15T02:40:40.022388+00:00",
+      "transformation": "allowlisted extraction only; raw source retained privately"
+    },
+    {
+      "source_relative_label": "build-results-spec.json",
+      "sha256": "a7ab66724090fac98e0a12982d7f4c213f70210a403c1027d7d2907ab324c5da",
+      "bytes": 60544,
+      "last_modified_utc": "2026-11-14T21:54:49.311740+00:00",
+      "transformation": "allowlisted extraction only; raw source retained privately"
+    },
+    {
+      "source_relative_label": "A-engine-component-metadata.json",
+      "sha256": "1b351f6aefb8003beefd6682f8abccef0b9b9fed210841fc782946c79a6669bb",
+      "bytes": 64016,
+      "last_modified_utc": "2026-11-14T22:05:59.342105+00:00",
+      "transformation": "allowlisted extraction only; raw source retained privately"
+    },
+    {
+      "source_relative_label": "A-native-build-metadata.json",
+      "sha256": "9d2ee287de4718347d4b8bd68109498a3a61892f45ed4eb0e1c66b2b2421d94b",
+      "bytes": 317,
+      "last_modified_utc": "2026-11-14T22:04:46.743945+00:00",
+      "transformation": "allowlisted extraction only; raw source retained privately"
+    }
+  ]
+}
