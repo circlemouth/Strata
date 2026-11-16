@@ -1,0 +1,72 @@
+[
+  {
+    "run": "r1-c0",
+    "selected_lines": [
+      "prefill gemm: hipBLASLt tuning enabled (90 rows, gfx1151, version 100401)",
+      "strata prefill: warmed the BF16 and FP16 GEMM libraries on GPU 0 in 2184 ms (STRATA_PREFILL_WARM=0 skips)",
+      "strata: prompt kernels: every chunk runs 48 of 48 layers on the int8 kernels.",
+      "prefill gemm: hipBLASLt tuning enabled (90 rows, gfx1151, version 100401)",
+      "strata prefill: QSA layers: norm + rope in one pass on, attention gate in the attention epilogue off"
+    ],
+    "meaning": "Allowlisted selected-plan and branch-entry evidence, not kernel launch trace"
+  },
+  {
+    "run": "r1-c1",
+    "selected_lines": [
+      "prefill gemm: hipBLASLt tuning enabled (90 rows, gfx1151, version 100401)",
+      "strata prefill: warmed the BF16 and FP16 GEMM libraries on GPU 0 in 2146 ms (STRATA_PREFILL_WARM=0 skips)",
+      "strata: prompt kernels: chunks of 1024 tokens or more run 48 of 48 layers on the fused kernels; shorter chunks run 48 on the staged fused entry.",
+      "prefill gemm: hipBLASLt tuning enabled (90 rows, gfx1151, version 100401)",
+      "strata: prompt experts on the fused int8 kernels (STRATA_PF_FUSED=1, #136)",
+      "strata prefill: QSA layers: norm + rope in one pass on, attention gate in the attention epilogue off"
+    ],
+    "meaning": "Allowlisted selected-plan and branch-entry evidence, not kernel launch trace"
+  },
+  {
+    "run": "r1-b1",
+    "selected_lines": [
+      "prefill gemm: hipBLASLt tuning enabled (90 rows, gfx1151, version 100401)",
+      "strata prefill: warmed the BF16 and FP16 GEMM libraries on GPU 0 in 2175 ms (STRATA_PREFILL_WARM=0 skips)",
+      "strata: prompt kernels: chunks of 1024 tokens or more run 48 of 48 layers on the fused kernels; shorter chunks run 48 on the staged fused entry.",
+      "prefill gemm: hipBLASLt tuning enabled (90 rows, gfx1151, version 100401)",
+      "strata: prompt experts on the fused int8 kernels (STRATA_PF_FUSED=1, #136)",
+      "strata prefill: QSA layers: norm + rope in one pass on, attention gate in the attention epilogue off"
+    ],
+    "meaning": "Allowlisted selected-plan and branch-entry evidence, not kernel launch trace"
+  },
+  {
+    "run": "r2-b1",
+    "selected_lines": [
+      "prefill gemm: hipBLASLt tuning enabled (90 rows, gfx1151, version 100401)",
+      "strata prefill: warmed the BF16 and FP16 GEMM libraries on GPU 0 in 2149 ms (STRATA_PREFILL_WARM=0 skips)",
+      "strata: prompt kernels: chunks of 1024 tokens or more run 48 of 48 layers on the fused kernels; shorter chunks run 48 on the staged fused entry.",
+      "prefill gemm: hipBLASLt tuning enabled (90 rows, gfx1151, version 100401)",
+      "strata: prompt experts on the fused int8 kernels (STRATA_PF_FUSED=1, #136)",
+      "strata prefill: QSA layers: norm + rope in one pass on, attention gate in the attention epilogue off"
+    ],
+    "meaning": "Allowlisted selected-plan and branch-entry evidence, not kernel launch trace"
+  },
+  {
+    "run": "r2-c1",
+    "selected_lines": [
+      "prefill gemm: hipBLASLt tuning enabled (90 rows, gfx1151, version 100401)",
+      "strata prefill: warmed the BF16 and FP16 GEMM libraries on GPU 0 in 2178 ms (STRATA_PREFILL_WARM=0 skips)",
+      "strata: prompt kernels: chunks of 1024 tokens or more run 48 of 48 layers on the fused kernels; shorter chunks run 48 on the staged fused entry.",
+      "prefill gemm: hipBLASLt tuning enabled (90 rows, gfx1151, version 100401)",
+      "strata: prompt experts on the fused int8 kernels (STRATA_PF_FUSED=1, #136)",
+      "strata prefill: QSA layers: norm + rope in one pass on, attention gate in the attention epilogue off"
+    ],
+    "meaning": "Allowlisted selected-plan and branch-entry evidence, not kernel launch trace"
+  },
+  {
+    "run": "r2-c0",
+    "selected_lines": [
+      "prefill gemm: hipBLASLt tuning enabled (90 rows, gfx1151, version 100401)",
+      "strata prefill: warmed the BF16 and FP16 GEMM libraries on GPU 0 in 2174 ms (STRATA_PREFILL_WARM=0 skips)",
+      "strata: prompt kernels: every chunk runs 48 of 48 layers on the int8 kernels.",
+      "prefill gemm: hipBLASLt tuning enabled (90 rows, gfx1151, version 100401)",
+      "strata prefill: QSA layers: norm + rope in one pass on, attention gate in the attention epilogue off"
+    ],
+    "meaning": "Allowlisted selected-plan and branch-entry evidence, not kernel launch trace"
+  }
+]

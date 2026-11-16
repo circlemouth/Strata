@@ -1,0 +1,56 @@
+{
+  "B_source": "3af562d541ec76c8da63d568248a919c8a54906b",
+  "C_source": "4d754ceba2d8bf54cbd1094e00352c27478f6198",
+  "C_tree": "b6c3a895a34d521ed9c6c975371820c4073ce159",
+  "upstream_tag": "v0.2.14.1",
+  "source_engine_version": "0.1.60.1",
+  "production_engine_is_separate": "0.1.60",
+  "build_options": {
+    "STRATA_MMQ": "OFF",
+    "STRATA_PREFILL_MMQ": "OFF",
+    "STRATA_NATIVE_EXPERTS": "ON",
+    "STRATA_ENABLE_HIP": "ON",
+    "CMAKE_HIP_ARCHITECTURES": "gfx1151"
+  },
+  "comparison": "C0 FUSED0 selects own-INT8 by default in this MMQ-free build; C1/B1 FUSED1 select native-fused where eligible. Selected plan and branch entry are not kernel-launch proof.",
+  "rule_sha256": {
+    "B": {
+      "src/prefill/prefill.cpp": "2260c05c83090bb5faee90633c83c8d6e763dc7b98da55fe93a010dccec6a3ab",
+      "include/strata/kernels/i8_expert_rule.hpp": "ac4886cba2b2383cb8bcc35cc0c556a7a5c2b66c06bbaa5ccf16b188e280515b",
+      "src/kernels/cuda/iq_kernels.cu": "b3d3bd6d24633068f16c0ad481c4677945645a417719a98d0be7e2d0b061ed6e",
+      "include/strata/prefill/own_only_line.hpp": "63ed30fe36fe0a37db943bc080a1a0bdd8432747d343491cfbd6f440d5f534aa"
+    },
+    "C": {
+      "src/prefill/prefill.cpp": "2260c05c83090bb5faee90633c83c8d6e763dc7b98da55fe93a010dccec6a3ab",
+      "include/strata/kernels/i8_expert_rule.hpp": "ac4886cba2b2383cb8bcc35cc0c556a7a5c2b66c06bbaa5ccf16b188e280515b",
+      "src/kernels/cuda/iq_kernels.cu": "b3d3bd6d24633068f16c0ad481c4677945645a417719a98d0be7e2d0b061ed6e",
+      "include/strata/prefill/own_only_line.hpp": "63ed30fe36fe0a37db943bc080a1a0bdd8432747d343491cfbd6f440d5f534aa"
+    }
+  },
+  "prefill_compile_definitions": {
+    "B": {
+      "STRATA_PREFILL_FUSED": "1",
+      "STRATA_NATIVE_EXPERTS": "1",
+      "STRATA_USE_HIP": "1",
+      "STRATA_PREFILL_MMQ": null
+    },
+    "C": {
+      "STRATA_PREFILL_FUSED": "1",
+      "STRATA_NATIVE_EXPERTS": "1",
+      "STRATA_USE_HIP": "1",
+      "STRATA_PREFILL_MMQ": null
+    }
+  },
+  "binary_sha256": {
+    "B1": "5070c734816ab3cbbd7312975aa960ccaead79275c042c195a0b42e617d25893",
+    "C0": "34b088743cf8600385e27651799a4ae2127dcb9532fb9b85249dfe991b57db3b",
+    "C1": "34b088743cf8600385e27651799a4ae2127dcb9532fb9b85249dfe991b57db3b"
+  },
+  "candidate_native_source_changed_by_review": false,
+  "all_arms_shared_C_frontend": true,
+  "server_scope": "The matching official native B binary uses the same C server wrapper as C0/C1; shipped production is a separate restoration target.",
+  "inputs_sha256": "c524ab79c1cf902d2c35ce2d5d3e672a1ff93cf5927f48d1f7bb40a55bf43df8",
+  "seal_sha256": "366ca5d0f827825ead9a7ee42deadbfaa98d35976bce642afed8e862b8c562e6",
+  "profile_sha256": "8f59b4aa8873209dff11c11e37bcda9529a1335b724a1afeea37bf6388975baf",
+  "Lt_table_sha256": "7e9e4e81b2306cab0906936e1e836fdf7f2f4e0805d17ab7596ea398a0946ac9"
+}

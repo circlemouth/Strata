@@ -1,0 +1,21 @@
+{
+  "target": "Frozen campaign tooling snapshot, not the Strata source repository directly",
+  "files": {
+    "collect_diagnostics.py": {
+      "base_sha256": "4dae80f3fc439aaa37726b02a4c1ae663c7c1934e8a4ecad957706c24f900296",
+      "review_sha256": "f3d24036feb8df8473ab439b7623e86075a32bf58184323868f370035881e76e"
+    },
+    "collect_effective.py": {
+      "base_sha256": "0474ba847e1c979165d24963c93670ff2f509a4bb23b9a64ea5f741d87aa1a36",
+      "review_sha256": "f9197dd0eb9ae533fc5727f7e0bef50ad01f4f8a85e0767a89eb1214eca4afca"
+    },
+    "test_collect_diagnostics.py": {
+      "base_sha256": "d13b06bd15e930094fdbaadffdc9c1b4efd290d4aa0ba45d12b181c93accc4de",
+      "review_sha256": "4fec390b61b5890f97053bb237110b712f023011b5f5adaa8294abd6bb0e4a52"
+    },
+    "test_collect_effective.py": {
+      "base_sha256": "961ea83ce9b681ce6664441c80d1e9c71aec2a693063d2ee326379587cb04763",
+      "review_sha256": "be0c24791ddcc184c0f4f70598e2cc9a2f48cef6236323b6da0eef2c9e12f362"
+    }
+  }
+}

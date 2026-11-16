@@ -1,0 +1,67 @@
+{
+  "hardware": {
+    "system": "GMKtec EVO-X2",
+    "CPU": "AMD Ryzen AI Max+ 395",
+    "GPU": "AMD Radeon 8060S integrated GPU",
+    "gfx_target": "gfx1151",
+    "installed_memory_GB": 128
+  },
+  "host_observation_after_run": {
+    "utc": "2026-11-16T06:20:03.778438+00:00",
+    "kernel": "7.0.0-34-generic",
+    "OS": "Ubuntu 24.04.5 LTS"
+  },
+  "candidate_runtime_image_sha256": "sha256:38a83522d4657416746f385ad950b5c8d16e68859ef4b0a1b3723f049965b87f",
+  "mapped_libraries_all_six_identical": true,
+  "mapped_libraries": {
+    "libamdhip64.so.7": {
+      "bytes": 28856816,
+      "sha256": "668e75716f8d938782d7b885f9e62c4be545a2dc562d52fa5aa07602da45f28f"
+    },
+    "libhipblaslt.so.1": {
+      "bytes": 9298816,
+      "sha256": "0633000c77ebe53609b48f51cbe6dc21a0a8a3624183b4a75ace827a1dec0ba4"
+    },
+    "librocblas.so.5": {
+      "bytes": 27468672,
+      "sha256": "5f3ecfd3caf79be931a44eea51c110a2b4eac43207fe4c93e23196c77e990605"
+    },
+    "libhipblas.so.3": {
+      "bytes": 937632,
+      "sha256": "591b9b74275db220301927bd870fb7ea816c031c7217d337fba5cc3fd841648d"
+    }
+  },
+  "Lt_table": {
+    "rows": 90,
+    "gfx": "gfx1151",
+    "version": 100401,
+    "sha256": "7e9e4e81b2306cab0906936e1e836fdf7f2f4e0805d17ab7596ea398a0946ac9"
+  },
+  "request": {
+    "input_tokens": 130552,
+    "word": "green",
+    "word_count": 130540,
+    "template_tokens_included": true,
+    "cached_tokens": 0,
+    "active_requests": 1,
+    "server_slots": 2,
+    "max_context": 131072,
+    "native_prefill_config": 2048,
+    "max_output_tokens": 512,
+    "stop": "natural EOS",
+    "seed": 42,
+    "temperature": 0,
+    "thinking": "off",
+    "client_absolute_timeout_s": 900
+  },
+  "resources": {
+    "candidate_CPU_quota_cores": 16,
+    "candidate_memory_GiB": 104,
+    "candidate_swap_max_bytes": 0
+  },
+  "source_scope": "C native and matching official B native, both with common C server wrapper; not shipped production benchmarking",
+  "profile_sha256": "8f59b4aa8873209dff11c11e37bcda9529a1335b724a1afeea37bf6388975baf",
+  "model": "Qwen3.8-Flash-Next Unsloth UD-IQ3_XXS with native expert pack",
+  "model_remote_revision": "Not independently reverified in this rerun; frozen local assets were identity-matched across all arms. Do not infer revision from a directory name.",
+  "full_weight_sha256": "Not newly computed during the rerun; exact small-asset/profile/table hashes and large-file identity checks were used."
+}

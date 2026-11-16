@@ -1,0 +1,56 @@
+{
+  "utc": "2026-11-16T05:51:59.204838+00:00",
+  "admission_open": true,
+  "production_ready": true,
+  "controller_busy": false,
+  "native": {
+    "engine": "0.1.60",
+    "context": {
+      "native": 131072,
+      "max_positions": 131072
+    },
+    "concurrency": {
+      "serving": 2,
+      "requested": 2
+    }
+  },
+  "native_in_flight": 0,
+  "original_image_preserved": true,
+  "original_config_preserved": true,
+  "candidate_containers_absent": true,
+  "supervisor_watchdog_absent": true,
+  "prior_and_new_sealed_inputs_unchanged": true,
+  "native_canary": {
+    "ok": true,
+    "usage": {
+      "prompt_tokens": 16,
+      "completion_tokens": 2,
+      "total_tokens": 18,
+      "prompt_tokens_details": {
+        "cached_tokens": 0
+      }
+    },
+    "elapsed_s": 0.42955791600979865
+  },
+  "restored_at_utc": "2026-11-16T05:51:26.839271+00:00",
+  "supervisor_exit_code": 0,
+  "candidate_cutoff_JST": "2026-11-16T15:15:00+09:00",
+  "watchdog_cutoff_JST": "2026-11-16T15:20:00+09:00",
+  "restoration_deadline_JST": "2026-11-16T16:00:00+09:00",
+  "production_adoption": false,
+  "protected_other_services_unchanged": true,
+  "gateway_canary": {
+    "ok": true,
+    "route": "existing gateway alias",
+    "usage": {
+      "completion_tokens": 2,
+      "prompt_tokens": 16,
+      "total_tokens": 18,
+      "prompt_tokens_details": {
+        "cached_tokens": 0
+      }
+    },
+    "wall_s": 0.3081812610034831
+  },
+  "scope": "Historical benchmark restoration; repository publication is separate."
+}

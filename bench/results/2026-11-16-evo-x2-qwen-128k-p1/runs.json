@@ -1,0 +1,830 @@
+[
+  {
+    "request_sha256": "f3e54c5a3e33068ee014d931c7ad59f7eb63d5af0427bc7b923f910d5a431cdc",
+    "wire_sha256": "f3e54c5a3e33068ee014d931c7ad59f7eb63d5af0427bc7b923f910d5a431cdc",
+    "text_sha256": "92a3a4360db53aaef78f19310106ae082dac8417c10dd2e5a59c701f65dcc11e",
+    "usage": {
+      "prompt_tokens": 130552,
+      "completion_tokens": 53,
+      "total_tokens": 130605,
+      "prompt_tokens_details": {
+        "cached_tokens": 0
+      }
+    },
+    "native_timings": {
+      "cache_n": 0,
+      "prompt_n": 130552,
+      "prompt_ms": 235716.8,
+      "prompt_per_second": 553.9,
+      "predicted_n": 53,
+      "predicted_ms": 1961.5,
+      "predicted_per_second": 27.0
+    },
+    "finish_reason": "stop",
+    "wall_s": 237.75091292802244,
+    "content_ttft_s": 235.83266149298288,
+    "sse_done": true,
+    "quantitatively_qualified": true,
+    "run": "r1-c0",
+    "arm": "C0",
+    "binary_sha256": "34b088743cf8600385e27651799a4ae2127dcb9532fb9b85249dfe991b57db3b",
+    "dispatch": {
+      "ok": true,
+      "arm": "C0",
+      "reason": "matched",
+      "dispatch_family": "own_i8",
+      "evidence_kind": "runtime_selected_dispatch_plan",
+      "kernel_launch_trace": false,
+      "actual_kernel_launches_proven": false,
+      "limitations": [
+        "A selected dispatch plan is not a kernel launch trace.",
+        "Live dispatch also depends on group size, buffers, native layout and sharing conditions.",
+        "Below-floor paths are recorded separately; no fused launch is inferred for them.",
+        "A fused branch-entry marker precedes kernel launches and does not prove all 48 layers or calls.",
+        "An absent selector is evidence only when its name was explicitly observed."
+      ],
+      "branch_entry_observed": false,
+      "branch_entry_count": 0,
+      "branch_entry_kind": "native_fused_branch_entry",
+      "branch_entry_required": false,
+      "branch_entry_scope": "cumulative process log; not per-layer or per-request launch proof",
+      "expert_i8_setting": "unset_with_proven_MMQ_free_default",
+      "plan_validation": {
+        "ok": true,
+        "arm": "C0",
+        "evidence_kind": "runtime_selected_dispatch_plan",
+        "kernel_launch_trace": false,
+        "planned_chunks": [
+          {
+            "tokens": 2048,
+            "chunk_class": "big",
+            "selected_layer_counts": {
+              "fused": 0,
+              "staged": 0,
+              "i8": 48,
+              "fp16": 0
+            },
+            "expectation": "all_own_i8",
+            "matches_expected": true
+          },
+          {
+            "tokens": 1521,
+            "chunk_class": "big",
+            "selected_layer_counts": {
+              "fused": 0,
+              "staged": 0,
+              "i8": 48,
+              "fp16": 0
+            },
+            "expectation": "all_own_i8",
+            "matches_expected": true
+          }
+        ],
+        "reason": "matched",
+        "applicable_fused_chunk_tokens": [],
+        "floor_tokens": null,
+        "layers_total": 48
+      },
+      "source_rules_pinned_identical": true,
+      "actual_binary_bound": true
+    },
+    "initial_environment": {
+      "STRATA_PF_FUSED": "0",
+      "STRATA_PF_FUSED_NATIVE": "1",
+      "STRATA_PF_F16": "0",
+      "STRATA_PF_DM16": "0",
+      "STRATA_HC_Q8": "0",
+      "STRATA_ROUTE_TAIL_SKIP": "0",
+      "STRATA_PF_WMMA": "0"
+    },
+    "observed_selectors": [
+      "STRATA_PF_FUSED",
+      "STRATA_PF_FUSED_NATIVE",
+      "STRATA_PF_F16",
+      "STRATA_PF_DM16",
+      "STRATA_HC_Q8",
+      "STRATA_ROUTE_TAIL_SKIP",
+      "STRATA_PF_WMMA",
+      "STRATA_EXPERT_I8",
+      "STRATA_PREFILL_TIMING",
+      "STRATA_HIPBLASLT_VERBOSE",
+      "STRATA_PF_FUSED_TRACE",
+      "STRATA_MANIFEST",
+      "STRATA_I8_COUNT"
+    ],
+    "absent_selectors": [
+      "STRATA_EXPERT_I8",
+      "STRATA_PREFILL_TIMING",
+      "STRATA_HIPBLASLT_VERBOSE",
+      "STRATA_PF_FUSED_TRACE",
+      "STRATA_MANIFEST",
+      "STRATA_I8_COUNT"
+    ],
+    "native_argv_matches_config": true,
+    "native_drafter_options_absent": true,
+    "diagnostic_variables_absent": true,
+    "engine_start_count": 1,
+    "engine_start_count_kind": "pre_exec_start_attempt_markers",
+    "failure_indications": [],
+    "restart_fallback_indications": {
+      "starting_it_again": false,
+      "engine_had_stopped": false,
+      "engine_start_retry": false,
+      "drafter_fallback": false,
+      "split_engine_fallback": false,
+      "replica_fallback": false
+    }
+  },
+  {
+    "request_sha256": "f3e54c5a3e33068ee014d931c7ad59f7eb63d5af0427bc7b923f910d5a431cdc",
+    "wire_sha256": "f3e54c5a3e33068ee014d931c7ad59f7eb63d5af0427bc7b923f910d5a431cdc",
+    "text_sha256": "148a52f0f7487a1652881eacacbdf9c21f00b2a85c71d8fcf97b4fc9fd66b39f",
+    "usage": {
+      "prompt_tokens": 130552,
+      "completion_tokens": 42,
+      "total_tokens": 130594,
+      "prompt_tokens_details": {
+        "cached_tokens": 0
+      }
+    },
+    "native_timings": {
+      "cache_n": 0,
+      "prompt_n": 130552,
+      "prompt_ms": 217728.5,
+      "prompt_per_second": 599.6,
+      "predicted_n": 42,
+      "predicted_ms": 1553.3,
+      "predicted_per_second": 27.0
+    },
+    "finish_reason": "stop",
+    "wall_s": 219.34520237799734,
+    "content_ttft_s": 217.8331440379843,
+    "sse_done": true,
+    "quantitatively_qualified": true,
+    "run": "r1-c1",
+    "arm": "C1",
+    "binary_sha256": "34b088743cf8600385e27651799a4ae2127dcb9532fb9b85249dfe991b57db3b",
+    "dispatch": {
+      "ok": true,
+      "arm": "C1",
+      "reason": "matched",
+      "dispatch_family": "native_fused",
+      "evidence_kind": "runtime_selected_dispatch_plan",
+      "kernel_launch_trace": false,
+      "actual_kernel_launches_proven": false,
+      "limitations": [
+        "A selected dispatch plan is not a kernel launch trace.",
+        "Live dispatch also depends on group size, buffers, native layout and sharing conditions.",
+        "Below-floor paths are recorded separately; no fused launch is inferred for them.",
+        "A fused branch-entry marker precedes kernel launches and does not prove all 48 layers or calls.",
+        "An absent selector is evidence only when its name was explicitly observed."
+      ],
+      "branch_entry_observed": true,
+      "branch_entry_count": 1,
+      "branch_entry_kind": "native_fused_branch_entry",
+      "branch_entry_required": true,
+      "branch_entry_scope": "cumulative process log; not per-layer or per-request launch proof",
+      "expert_i8_setting": "unset_with_proven_MMQ_free_default",
+      "plan_validation": {
+        "ok": true,
+        "arm": "C1",
+        "evidence_kind": "runtime_selected_dispatch_plan",
+        "kernel_launch_trace": false,
+        "planned_chunks": [
+          {
+            "tokens": 2048,
+            "chunk_class": "big",
+            "selected_layer_counts": {
+              "fused": 48,
+              "staged": 0,
+              "i8": 0,
+              "fp16": 0
+            },
+            "expectation": "all_fused",
+            "matches_expected": true
+          },
+          {
+            "tokens": 1521,
+            "chunk_class": "big",
+            "selected_layer_counts": {
+              "fused": 48,
+              "staged": 0,
+              "i8": 0,
+              "fp16": 0
+            },
+            "expectation": "all_fused",
+            "matches_expected": true
+          }
+        ],
+        "reason": "matched",
+        "applicable_fused_chunk_tokens": [
+          2048,
+          1521
+        ],
+        "floor_tokens": 1024,
+        "layers_total": 48
+      },
+      "source_rules_pinned_identical": true,
+      "actual_binary_bound": true
+    },
+    "initial_environment": {
+      "STRATA_PF_FUSED": "1",
+      "STRATA_PF_FUSED_NATIVE": "1",
+      "STRATA_PF_F16": "0",
+      "STRATA_PF_DM16": "0",
+      "STRATA_HC_Q8": "0",
+      "STRATA_ROUTE_TAIL_SKIP": "0",
+      "STRATA_PF_WMMA": "0"
+    },
+    "observed_selectors": [
+      "STRATA_PF_FUSED",
+      "STRATA_PF_FUSED_NATIVE",
+      "STRATA_PF_F16",
+      "STRATA_PF_DM16",
+      "STRATA_HC_Q8",
+      "STRATA_ROUTE_TAIL_SKIP",
+      "STRATA_PF_WMMA",
+      "STRATA_EXPERT_I8",
+      "STRATA_PREFILL_TIMING",
+      "STRATA_HIPBLASLT_VERBOSE",
+      "STRATA_PF_FUSED_TRACE",
+      "STRATA_MANIFEST",
+      "STRATA_I8_COUNT"
+    ],
+    "absent_selectors": [
+      "STRATA_EXPERT_I8",
+      "STRATA_PREFILL_TIMING",
+      "STRATA_HIPBLASLT_VERBOSE",
+      "STRATA_PF_FUSED_TRACE",
+      "STRATA_MANIFEST",
+      "STRATA_I8_COUNT"
+    ],
+    "native_argv_matches_config": true,
+    "native_drafter_options_absent": true,
+    "diagnostic_variables_absent": true,
+    "engine_start_count": 1,
+    "engine_start_count_kind": "pre_exec_start_attempt_markers",
+    "failure_indications": [],
+    "restart_fallback_indications": {
+      "starting_it_again": false,
+      "engine_had_stopped": false,
+      "engine_start_retry": false,
+      "drafter_fallback": false,
+      "split_engine_fallback": false,
+      "replica_fallback": false
+    }
+  },
+  {
+    "request_sha256": "f3e54c5a3e33068ee014d931c7ad59f7eb63d5af0427bc7b923f910d5a431cdc",
+    "wire_sha256": "f3e54c5a3e33068ee014d931c7ad59f7eb63d5af0427bc7b923f910d5a431cdc",
+    "text_sha256": "148a52f0f7487a1652881eacacbdf9c21f00b2a85c71d8fcf97b4fc9fd66b39f",
+    "usage": {
+      "prompt_tokens": 130552,
+      "completion_tokens": 42,
+      "total_tokens": 130594,
+      "prompt_tokens_details": {
+        "cached_tokens": 0
+      }
+    },
+    "native_timings": {
+      "cache_n": 0,
+      "prompt_n": 130552,
+      "prompt_ms": 218401.1,
+      "prompt_per_second": 597.8,
+      "predicted_n": 42,
+      "predicted_ms": 1554.2,
+      "predicted_per_second": 27.0
+    },
+    "finish_reason": "stop",
+    "wall_s": 220.04232434602454,
+    "content_ttft_s": 218.52984313998604,
+    "sse_done": true,
+    "quantitatively_qualified": true,
+    "run": "r1-b1",
+    "arm": "B1",
+    "binary_sha256": "5070c734816ab3cbbd7312975aa960ccaead79275c042c195a0b42e617d25893",
+    "dispatch": {
+      "ok": true,
+      "arm": "B1",
+      "reason": "matched",
+      "dispatch_family": "native_fused",
+      "evidence_kind": "runtime_selected_dispatch_plan",
+      "kernel_launch_trace": false,
+      "actual_kernel_launches_proven": false,
+      "limitations": [
+        "A selected dispatch plan is not a kernel launch trace.",
+        "Live dispatch also depends on group size, buffers, native layout and sharing conditions.",
+        "Below-floor paths are recorded separately; no fused launch is inferred for them.",
+        "A fused branch-entry marker precedes kernel launches and does not prove all 48 layers or calls.",
+        "An absent selector is evidence only when its name was explicitly observed."
+      ],
+      "branch_entry_observed": true,
+      "branch_entry_count": 1,
+      "branch_entry_kind": "native_fused_branch_entry",
+      "branch_entry_required": true,
+      "branch_entry_scope": "cumulative process log; not per-layer or per-request launch proof",
+      "expert_i8_setting": "unset_with_proven_MMQ_free_default",
+      "plan_validation": {
+        "ok": true,
+        "arm": "B1",
+        "evidence_kind": "runtime_selected_dispatch_plan",
+        "kernel_launch_trace": false,
+        "planned_chunks": [
+          {
+            "tokens": 2048,
+            "chunk_class": "big",
+            "selected_layer_counts": {
+              "fused": 48,
+              "staged": 0,
+              "i8": 0,
+              "fp16": 0
+            },
+            "expectation": "all_fused",
+            "matches_expected": true
+          },
+          {
+            "tokens": 1521,
+            "chunk_class": "big",
+            "selected_layer_counts": {
+              "fused": 48,
+              "staged": 0,
+              "i8": 0,
+              "fp16": 0
+            },
+            "expectation": "all_fused",
+            "matches_expected": true
+          }
+        ],
+        "reason": "matched",
+        "applicable_fused_chunk_tokens": [
+          2048,
+          1521
+        ],
+        "floor_tokens": 1024,
+        "layers_total": 48
+      },
+      "source_rules_pinned_identical": true,
+      "actual_binary_bound": true
+    },
+    "initial_environment": {
+      "STRATA_PF_FUSED": "1",
+      "STRATA_PF_FUSED_NATIVE": "1",
+      "STRATA_PF_F16": "0",
+      "STRATA_PF_DM16": "0",
+      "STRATA_HC_Q8": "0",
+      "STRATA_ROUTE_TAIL_SKIP": "0",
+      "STRATA_PF_WMMA": "0"
+    },
+    "observed_selectors": [
+      "STRATA_PF_FUSED",
+      "STRATA_PF_FUSED_NATIVE",
+      "STRATA_PF_F16",
+      "STRATA_PF_DM16",
+      "STRATA_HC_Q8",
+      "STRATA_ROUTE_TAIL_SKIP",
+      "STRATA_PF_WMMA",
+      "STRATA_EXPERT_I8",
+      "STRATA_PREFILL_TIMING",
+      "STRATA_HIPBLASLT_VERBOSE",
+      "STRATA_PF_FUSED_TRACE",
+      "STRATA_MANIFEST",
+      "STRATA_I8_COUNT"
+    ],
+    "absent_selectors": [
+      "STRATA_EXPERT_I8",
+      "STRATA_PREFILL_TIMING",
+      "STRATA_HIPBLASLT_VERBOSE",
+      "STRATA_PF_FUSED_TRACE",
+      "STRATA_MANIFEST",
+      "STRATA_I8_COUNT"
+    ],
+    "native_argv_matches_config": true,
+    "native_drafter_options_absent": true,
+    "diagnostic_variables_absent": true,
+    "engine_start_count": 1,
+    "engine_start_count_kind": "pre_exec_start_attempt_markers",
+    "failure_indications": [],
+    "restart_fallback_indications": {
+      "starting_it_again": false,
+      "engine_had_stopped": false,
+      "engine_start_retry": false,
+      "drafter_fallback": false,
+      "split_engine_fallback": false,
+      "replica_fallback": false
+    }
+  },
+  {
+    "request_sha256": "f3e54c5a3e33068ee014d931c7ad59f7eb63d5af0427bc7b923f910d5a431cdc",
+    "wire_sha256": "f3e54c5a3e33068ee014d931c7ad59f7eb63d5af0427bc7b923f910d5a431cdc",
+    "text_sha256": "148a52f0f7487a1652881eacacbdf9c21f00b2a85c71d8fcf97b4fc9fd66b39f",
+    "usage": {
+      "prompt_tokens": 130552,
+      "completion_tokens": 42,
+      "total_tokens": 130594,
+      "prompt_tokens_details": {
+        "cached_tokens": 0
+      }
+    },
+    "native_timings": {
+      "cache_n": 0,
+      "prompt_n": 130552,
+      "prompt_ms": 216996.4,
+      "prompt_per_second": 601.6,
+      "predicted_n": 42,
+      "predicted_ms": 1568.6,
+      "predicted_per_second": 26.8
+    },
+    "finish_reason": "stop",
+    "wall_s": 218.63437242200598,
+    "content_ttft_s": 217.10987616097555,
+    "sse_done": true,
+    "quantitatively_qualified": true,
+    "run": "r2-b1",
+    "arm": "B1",
+    "binary_sha256": "5070c734816ab3cbbd7312975aa960ccaead79275c042c195a0b42e617d25893",
+    "dispatch": {
+      "ok": true,
+      "arm": "B1",
+      "reason": "matched",
+      "dispatch_family": "native_fused",
+      "evidence_kind": "runtime_selected_dispatch_plan",
+      "kernel_launch_trace": false,
+      "actual_kernel_launches_proven": false,
+      "limitations": [
+        "A selected dispatch plan is not a kernel launch trace.",
+        "Live dispatch also depends on group size, buffers, native layout and sharing conditions.",
+        "Below-floor paths are recorded separately; no fused launch is inferred for them.",
+        "A fused branch-entry marker precedes kernel launches and does not prove all 48 layers or calls.",
+        "An absent selector is evidence only when its name was explicitly observed."
+      ],
+      "branch_entry_observed": true,
+      "branch_entry_count": 1,
+      "branch_entry_kind": "native_fused_branch_entry",
+      "branch_entry_required": true,
+      "branch_entry_scope": "cumulative process log; not per-layer or per-request launch proof",
+      "expert_i8_setting": "unset_with_proven_MMQ_free_default",
+      "plan_validation": {
+        "ok": true,
+        "arm": "B1",
+        "evidence_kind": "runtime_selected_dispatch_plan",
+        "kernel_launch_trace": false,
+        "planned_chunks": [
+          {
+            "tokens": 2048,
+            "chunk_class": "big",
+            "selected_layer_counts": {
+              "fused": 48,
+              "staged": 0,
+              "i8": 0,
+              "fp16": 0
+            },
+            "expectation": "all_fused",
+            "matches_expected": true
+          },
+          {
+            "tokens": 1521,
+            "chunk_class": "big",
+            "selected_layer_counts": {
+              "fused": 48,
+              "staged": 0,
+              "i8": 0,
+              "fp16": 0
+            },
+            "expectation": "all_fused",
+            "matches_expected": true
+          }
+        ],
+        "reason": "matched",
+        "applicable_fused_chunk_tokens": [
+          2048,
+          1521
+        ],
+        "floor_tokens": 1024,
+        "layers_total": 48
+      },
+      "source_rules_pinned_identical": true,
+      "actual_binary_bound": true
+    },
+    "initial_environment": {
+      "STRATA_PF_FUSED": "1",
+      "STRATA_PF_FUSED_NATIVE": "1",
+      "STRATA_PF_F16": "0",
+      "STRATA_PF_DM16": "0",
+      "STRATA_HC_Q8": "0",
+      "STRATA_ROUTE_TAIL_SKIP": "0",
+      "STRATA_PF_WMMA": "0"
+    },
+    "observed_selectors": [
+      "STRATA_PF_FUSED",
+      "STRATA_PF_FUSED_NATIVE",
+      "STRATA_PF_F16",
+      "STRATA_PF_DM16",
+      "STRATA_HC_Q8",
+      "STRATA_ROUTE_TAIL_SKIP",
+      "STRATA_PF_WMMA",
+      "STRATA_EXPERT_I8",
+      "STRATA_PREFILL_TIMING",
+      "STRATA_HIPBLASLT_VERBOSE",
+      "STRATA_PF_FUSED_TRACE",
+      "STRATA_MANIFEST",
+      "STRATA_I8_COUNT"
+    ],
+    "absent_selectors": [
+      "STRATA_EXPERT_I8",
+      "STRATA_PREFILL_TIMING",
+      "STRATA_HIPBLASLT_VERBOSE",
+      "STRATA_PF_FUSED_TRACE",
+      "STRATA_MANIFEST",
+      "STRATA_I8_COUNT"
+    ],
+    "native_argv_matches_config": true,
+    "native_drafter_options_absent": true,
+    "diagnostic_variables_absent": true,
+    "engine_start_count": 1,
+    "engine_start_count_kind": "pre_exec_start_attempt_markers",
+    "failure_indications": [],
+    "restart_fallback_indications": {
+      "starting_it_again": false,
+      "engine_had_stopped": false,
+      "engine_start_retry": false,
+      "drafter_fallback": false,
+      "split_engine_fallback": false,
+      "replica_fallback": false
+    }
+  },
+  {
+    "request_sha256": "f3e54c5a3e33068ee014d931c7ad59f7eb63d5af0427bc7b923f910d5a431cdc",
+    "wire_sha256": "f3e54c5a3e33068ee014d931c7ad59f7eb63d5af0427bc7b923f910d5a431cdc",
+    "text_sha256": "148a52f0f7487a1652881eacacbdf9c21f00b2a85c71d8fcf97b4fc9fd66b39f",
+    "usage": {
+      "prompt_tokens": 130552,
+      "completion_tokens": 42,
+      "total_tokens": 130594,
+      "prompt_tokens_details": {
+        "cached_tokens": 0
+      }
+    },
+    "native_timings": {
+      "cache_n": 0,
+      "prompt_n": 130552,
+      "prompt_ms": 217577.1,
+      "prompt_per_second": 600.0,
+      "predicted_n": 42,
+      "predicted_ms": 1555.3,
+      "predicted_per_second": 27.0
+    },
+    "finish_reason": "stop",
+    "wall_s": 219.2092079090071,
+    "content_ttft_s": 217.6958201220259,
+    "sse_done": true,
+    "quantitatively_qualified": true,
+    "run": "r2-c1",
+    "arm": "C1",
+    "binary_sha256": "34b088743cf8600385e27651799a4ae2127dcb9532fb9b85249dfe991b57db3b",
+    "dispatch": {
+      "ok": true,
+      "arm": "C1",
+      "reason": "matched",
+      "dispatch_family": "native_fused",
+      "evidence_kind": "runtime_selected_dispatch_plan",
+      "kernel_launch_trace": false,
+      "actual_kernel_launches_proven": false,
+      "limitations": [
+        "A selected dispatch plan is not a kernel launch trace.",
+        "Live dispatch also depends on group size, buffers, native layout and sharing conditions.",
+        "Below-floor paths are recorded separately; no fused launch is inferred for them.",
+        "A fused branch-entry marker precedes kernel launches and does not prove all 48 layers or calls.",
+        "An absent selector is evidence only when its name was explicitly observed."
+      ],
+      "branch_entry_observed": true,
+      "branch_entry_count": 1,
+      "branch_entry_kind": "native_fused_branch_entry",
+      "branch_entry_required": true,
+      "branch_entry_scope": "cumulative process log; not per-layer or per-request launch proof",
+      "expert_i8_setting": "unset_with_proven_MMQ_free_default",
+      "plan_validation": {
+        "ok": true,
+        "arm": "C1",
+        "evidence_kind": "runtime_selected_dispatch_plan",
+        "kernel_launch_trace": false,
+        "planned_chunks": [
+          {
+            "tokens": 2048,
+            "chunk_class": "big",
+            "selected_layer_counts": {
+              "fused": 48,
+              "staged": 0,
+              "i8": 0,
+              "fp16": 0
+            },
+            "expectation": "all_fused",
+            "matches_expected": true
+          },
+          {
+            "tokens": 1521,
+            "chunk_class": "big",
+            "selected_layer_counts": {
+              "fused": 48,
+              "staged": 0,
+              "i8": 0,
+              "fp16": 0
+            },
+            "expectation": "all_fused",
+            "matches_expected": true
+          }
+        ],
+        "reason": "matched",
+        "applicable_fused_chunk_tokens": [
+          2048,
+          1521
+        ],
+        "floor_tokens": 1024,
+        "layers_total": 48
+      },
+      "source_rules_pinned_identical": true,
+      "actual_binary_bound": true
+    },
+    "initial_environment": {
+      "STRATA_PF_FUSED": "1",
+      "STRATA_PF_FUSED_NATIVE": "1",
+      "STRATA_PF_F16": "0",
+      "STRATA_PF_DM16": "0",
+      "STRATA_HC_Q8": "0",
+      "STRATA_ROUTE_TAIL_SKIP": "0",
+      "STRATA_PF_WMMA": "0"
+    },
+    "observed_selectors": [
+      "STRATA_PF_FUSED",
+      "STRATA_PF_FUSED_NATIVE",
+      "STRATA_PF_F16",
+      "STRATA_PF_DM16",
+      "STRATA_HC_Q8",
+      "STRATA_ROUTE_TAIL_SKIP",
+      "STRATA_PF_WMMA",
+      "STRATA_EXPERT_I8",
+      "STRATA_PREFILL_TIMING",
+      "STRATA_HIPBLASLT_VERBOSE",
+      "STRATA_PF_FUSED_TRACE",
+      "STRATA_MANIFEST",
+      "STRATA_I8_COUNT"
+    ],
+    "absent_selectors": [
+      "STRATA_EXPERT_I8",
+      "STRATA_PREFILL_TIMING",
+      "STRATA_HIPBLASLT_VERBOSE",
+      "STRATA_PF_FUSED_TRACE",
+      "STRATA_MANIFEST",
+      "STRATA_I8_COUNT"
+    ],
+    "native_argv_matches_config": true,
+    "native_drafter_options_absent": true,
+    "diagnostic_variables_absent": true,
+    "engine_start_count": 1,
+    "engine_start_count_kind": "pre_exec_start_attempt_markers",
+    "failure_indications": [],
+    "restart_fallback_indications": {
+      "starting_it_again": false,
+      "engine_had_stopped": false,
+      "engine_start_retry": false,
+      "drafter_fallback": false,
+      "split_engine_fallback": false,
+      "replica_fallback": false
+    }
+  },
+  {
+    "request_sha256": "f3e54c5a3e33068ee014d931c7ad59f7eb63d5af0427bc7b923f910d5a431cdc",
+    "wire_sha256": "f3e54c5a3e33068ee014d931c7ad59f7eb63d5af0427bc7b923f910d5a431cdc",
+    "text_sha256": "92a3a4360db53aaef78f19310106ae082dac8417c10dd2e5a59c701f65dcc11e",
+    "usage": {
+      "prompt_tokens": 130552,
+      "completion_tokens": 53,
+      "total_tokens": 130605,
+      "prompt_tokens_details": {
+        "cached_tokens": 0
+      }
+    },
+    "native_timings": {
+      "cache_n": 0,
+      "prompt_n": 130552,
+      "prompt_ms": 236473.4,
+      "prompt_per_second": 552.1,
+      "predicted_n": 53,
+      "predicted_ms": 1972.7,
+      "predicted_per_second": 26.9
+    },
+    "finish_reason": "stop",
+    "wall_s": 238.5236549670226,
+    "content_ttft_s": 236.59669486799976,
+    "sse_done": true,
+    "quantitatively_qualified": true,
+    "run": "r2-c0",
+    "arm": "C0",
+    "binary_sha256": "34b088743cf8600385e27651799a4ae2127dcb9532fb9b85249dfe991b57db3b",
+    "dispatch": {
+      "ok": true,
+      "arm": "C0",
+      "reason": "matched",
+      "dispatch_family": "own_i8",
+      "evidence_kind": "runtime_selected_dispatch_plan",
+      "kernel_launch_trace": false,
+      "actual_kernel_launches_proven": false,
+      "limitations": [
+        "A selected dispatch plan is not a kernel launch trace.",
+        "Live dispatch also depends on group size, buffers, native layout and sharing conditions.",
+        "Below-floor paths are recorded separately; no fused launch is inferred for them.",
+        "A fused branch-entry marker precedes kernel launches and does not prove all 48 layers or calls.",
+        "An absent selector is evidence only when its name was explicitly observed."
+      ],
+      "branch_entry_observed": false,
+      "branch_entry_count": 0,
+      "branch_entry_kind": "native_fused_branch_entry",
+      "branch_entry_required": false,
+      "branch_entry_scope": "cumulative process log; not per-layer or per-request launch proof",
+      "expert_i8_setting": "unset_with_proven_MMQ_free_default",
+      "plan_validation": {
+        "ok": true,
+        "arm": "C0",
+        "evidence_kind": "runtime_selected_dispatch_plan",
+        "kernel_launch_trace": false,
+        "planned_chunks": [
+          {
+            "tokens": 2048,
+            "chunk_class": "big",
+            "selected_layer_counts": {
+              "fused": 0,
+              "staged": 0,
+              "i8": 48,
+              "fp16": 0
+            },
+            "expectation": "all_own_i8",
+            "matches_expected": true
+          },
+          {
+            "tokens": 1521,
+            "chunk_class": "big",
+            "selected_layer_counts": {
+              "fused": 0,
+              "staged": 0,
+              "i8": 48,
+              "fp16": 0
+            },
+            "expectation": "all_own_i8",
+            "matches_expected": true
+          }
+        ],
+        "reason": "matched",
+        "applicable_fused_chunk_tokens": [],
+        "floor_tokens": null,
+        "layers_total": 48
+      },
+      "source_rules_pinned_identical": true,
+      "actual_binary_bound": true
+    },
+    "initial_environment": {
+      "STRATA_PF_FUSED": "0",
+      "STRATA_PF_FUSED_NATIVE": "1",
+      "STRATA_PF_F16": "0",
+      "STRATA_PF_DM16": "0",
+      "STRATA_HC_Q8": "0",
+      "STRATA_ROUTE_TAIL_SKIP": "0",
+      "STRATA_PF_WMMA": "0"
+    },
+    "observed_selectors": [
+      "STRATA_PF_FUSED",
+      "STRATA_PF_FUSED_NATIVE",
+      "STRATA_PF_F16",
+      "STRATA_PF_DM16",
+      "STRATA_HC_Q8",
+      "STRATA_ROUTE_TAIL_SKIP",
+      "STRATA_PF_WMMA",
+      "STRATA_EXPERT_I8",
+      "STRATA_PREFILL_TIMING",
+      "STRATA_HIPBLASLT_VERBOSE",
+      "STRATA_PF_FUSED_TRACE",
+      "STRATA_MANIFEST",
+      "STRATA_I8_COUNT"
+    ],
+    "absent_selectors": [
+      "STRATA_EXPERT_I8",
+      "STRATA_PREFILL_TIMING",
+      "STRATA_HIPBLASLT_VERBOSE",
+      "STRATA_PF_FUSED_TRACE",
+      "STRATA_MANIFEST",
+      "STRATA_I8_COUNT"
+    ],
+    "native_argv_matches_config": true,
+    "native_drafter_options_absent": true,
+    "diagnostic_variables_absent": true,
+    "engine_start_count": 1,
+    "engine_start_count_kind": "pre_exec_start_attempt_markers",
+    "failure_indications": [],
+    "restart_fallback_indications": {
+      "starting_it_again": false,
+      "engine_had_stopped": false,
+      "engine_start_retry": false,
+      "drafter_fallback": false,
+      "split_engine_fallback": false,
+      "replica_fallback": false
+    }
+  }
+]

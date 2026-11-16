@@ -1,0 +1,279 @@
+--- a/collect_diagnostics.py
++++ b/collect_diagnostics.py
+@@ -12,0 +13,2 @@
++NATIVE_FUSED_BRANCH_LINE='strata: prompt experts on the fused int8 kernels (STRATA_PF_FUSED=1, #136)'
++NATIVE_FUSED_BRANCH_KIND='native_fused_branch_entry'
+@@ -65 +67 @@
+- C0 must be entirely FP16 at every size. C1/B1 must be entirely fused in the
++ C0 must be entirely own INT8 at every size. C1/B1 must be entirely fused in the
+@@ -82 +84 @@
+- ok=(all_on(plan['big'],'fp16') and all_on(plan['small'],'fp16')) if arm=='C0' else all_on(plan['big'],'fused')
++ ok=(all_on(plan['big'],'i8') and all_on(plan['small'],'i8')) if arm=='C0' else all_on(plan['big'],'fused')
+@@ -86 +88 @@
+-  expectation='all_fp16' if arm=='C0' else 'record_only_below_floor' if below else 'all_fused'
++  expectation='all_own_i8' if arm=='C0' else 'record_only_below_floor' if below else 'all_fused'
+@@ -90 +92 @@
+-      matches_expected=None if expectation=='record_only_below_floor' else all_on(counts,'fp16' if arm=='C0' else 'fused')))
++      matches_expected=None if expectation=='record_only_below_floor' else all_on(counts,'i8' if arm=='C0' else 'fused')))
+@@ -91,0 +94,95 @@
++ return result
++
++
++# Frozen source rules, not measurements: both archived source trees have these bytes.
++# prefill.cpp:204-215 sets the MMQ-free default before main; i8_expert_rule.hpp:28-56
++# resolves unset I8 and orders fused/staged > own INT8 > FP16. iq_kernels.cu:6240-6307
++# applies that rule. own_only_line.hpp:24-26,56-69 formats the selected plan.
++RULE_SHA256={
++ 'include/strata/kernels/i8_expert_rule.hpp':'ac4886cba2b2383cb8bcc35cc0c556a7a5c2b66c06bbaa5ccf16b188e280515b',
++ 'include/strata/prefill/own_only_line.hpp':'63ed30fe36fe0a37db943bc080a1a0bdd8432747d343491cfbd6f440d5f534aa',
++ 'src/prefill/prefill.cpp':'2260c05c83090bb5faee90633c83c8d6e763dc7b98da55fe93a010dccec6a3ab',
++ 'src/kernels/cuda/iq_kernels.cu':'b3d3bd6d24633068f16c0ad481c4677945645a417719a98d0be7e2d0b061ed6e'}
++SOURCES={'B_source':'3af562d541ec76c8da63d568248a919c8a54906b',
++         'C_source':'4d754ceba2d8bf54cbd1094e00352c27478f6198'}
++BUILD_OPTIONS={'STRATA_MMQ':'OFF','STRATA_PREFILL_MMQ':'OFF','STRATA_NATIVE_EXPERTS':'ON',
++               'STRATA_ENABLE_HIP':'ON','CMAKE_HIP_ARCHITECTURES':'gfx1151'}
++PREFILL_DEFINITIONS={'STRATA_PREFILL_FUSED':'1','STRATA_NATIVE_EXPERTS':'1','STRATA_USE_HIP':'1','STRATA_PREFILL_MMQ':None}
++SELECTORS=('STRATA_PF_FUSED','STRATA_PF_FUSED_NATIVE','STRATA_PF_F16','STRATA_PF_DM16','STRATA_PF_WMMA','STRATA_EXPERT_I8')
++DIAGNOSTICS=('STRATA_PREFILL_TIMING','STRATA_HIPBLASLT_VERBOSE','STRATA_PF_FUSED_TRACE','STRATA_MANIFEST','STRATA_I8_COUNT')
++LIVE_LIMITATIONS=('A selected dispatch plan is not a kernel launch trace.',
++                 'Live dispatch also depends on group size, buffers, native layout and sharing conditions.',
++                 'Below-floor paths are recorded separately; no fused launch is inferred for them.',
++                 'A fused branch-entry marker precedes kernel launches and does not prove all 48 layers or calls.',
++                 'An absent selector is evidence only when its name was explicitly observed.')
++
++def validate_combined_dispatch_evidence(diagnostics,effective,arm,build):
++ """Pure, fail-closed evidence join. Never reads source, environment or devices.
++
++ build binds commits, compile options, both rule hash maps and arm binary hashes;
++ requested_chunks optionally gives positive planned sizes (default 2048,1521).
++ effective must carry explicit observed/absent selector lists from the same native
++ process plus its actual binary hash. Missing historical I8 observation fails.
++ Return a structured verdict, not an exception or an actual-kernel assertion.
++ """
++ result=dict(ok=False,arm=arm,reason='invalid_evidence',dispatch_family=None,
++             evidence_kind='runtime_selected_dispatch_plan',kernel_launch_trace=False,
++             actual_kernel_launches_proven=False,limitations=list(LIVE_LIMITATIONS))
++ def require(condition,reason):
++  if not condition:raise ValueError(reason)
++ try:
++  require(arm in ('C0','C1','B1'),'unknown_arm')
++  require(all(type(x) is dict for x in (diagnostics,effective,build)),'evidence_shape')
++  require(all(build.get(k)==v for k,v in SOURCES.items()),'source_pair_mismatch')
++  options=build.get('build_options',{})
++  require(type(options) is dict and all(options.get(k)==v for k,v in BUILD_OPTIONS.items()),'MMQ_free_build_not_proven')
++  definitions=build.get('prefill_compile_definitions',{})
++  require(type(definitions) is dict and all(type(definitions.get(side)) is dict and all(k in definitions[side] and definitions[side][k]==v for k,v in PREFILL_DEFINITIONS.items()) for side in ('B','C')),'prefill_compile_definitions_not_proven')
++  rules=build.get('rule_sha256',{})
++  require(type(rules) is dict and rules.get('B')==RULE_SHA256 and rules.get('C')==RULE_SHA256,'source_rules_not_pinned_identical')
++  binaries=build.get('binary_sha256',{})
++  require(type(binaries) is dict and all(type(binaries.get(k)) is str and re.fullmatch('[0-9a-f]{64}',binaries[k]) for k in ('B1','C0','C1')),'binary_provenance_missing')
++  require(binaries['C0']==binaries['C1'] and effective.get('binary_sha256')==binaries[arm],'actual_binary_mismatch')
++  require(effective.get('native_argv_matches_config') is True and effective.get('native_drafter_options_absent') is True,'native_arguments_not_verified')
++  require(type(effective.get('pid')) is int and effective['pid']>0 and type(effective.get('start_ticks')) is str and effective['start_ticks'].isdigit(),'native_generation_missing')
++  env=effective.get('environment');observed=effective.get('observed_selector_names');absent=effective.get('absent_selector_names')
++  require(type(env) is dict and type(observed) is list and type(absent) is list,'selector_observation_missing')
++  require(all(type(k) is str for k in observed+absent) and len(set(observed))==len(observed) and len(set(absent))==len(absent),'selector_list_shape')
++  require(set(SELECTORS+DIAGNOSTICS).issubset(observed) and set(absent).issubset(observed),'selector_observation_incomplete')
++  require(not set(absent).intersection(env),'selector_presence_contradiction')
++  require(all(k in env or k in absent for k in observed),'selector_observation_ambiguous')
++  require(all(k in absent and k not in env for k in DIAGNOSTICS),'diagnostic_absence_not_proven')
++  expected={'STRATA_PF_FUSED':'0' if arm=='C0' else '1','STRATA_PF_FUSED_NATIVE':'1',
++            'STRATA_PF_F16':'0','STRATA_PF_DM16':'0','STRATA_PF_WMMA':'0'}
++  require(all(type(env.get(k)) is str and env[k]==v for k,v in expected.items()),'arm_selectors_mismatch')
++  i8=env.get('STRATA_EXPERT_I8')
++  require(i8 in ('0','1') if 'STRATA_EXPERT_I8' in env else 'STRATA_EXPERT_I8' in absent,'expert_i8_unknown')
++  require(type(diagnostics.get('engine_start_count')) is int and diagnostics['engine_start_count']==1,'native_start_count')
++  require(diagnostics.get('engine_start_count_kind')=='pre_exec_start_attempt_markers','native_start_marker_scope')
++  require(diagnostics.get('restart_or_fallback_indicated') is False,'retry_or_fallback_unproved')
++  logs=diagnostics.get('lifecycle_logs_present',{})
++  require(type(logs) is dict and set(logs)=={'engine','server'} and all(v is True for v in logs.values()),'lifecycle_logs_missing')
++  require(diagnostics.get('failure_indications')==[],'native_failures_or_missing_scan')
++  require(diagnostics.get('prompt_kernel_plan_status')=='observed' and type(diagnostics.get('prompt_kernel_plan_line_count')) is int and diagnostics['prompt_kernel_plan_line_count']==1 and diagnostics.get('prompt_kernel_plan_parse_errors')==0,'one_selected_plan_not_proven')
++  plan=diagnostics.get('prompt_kernel_plan')
++  require(type(plan) is dict and plan.get('evidence_kind')=='runtime_selected_dispatch_plan' and plan.get('kernel_launch_trace') is False,'plan_scope_missing_or_incorrect')
++  parsed=parse_prompt_kernel_plan(plan.get('line',''))
++  require(json.dumps(parsed,sort_keys=True)==json.dumps(plan,sort_keys=True),'plan_structure_mismatch')
++  require(plan.get('peer_fused_off') is False,'peer_override_not_in_scope')
++  require((plan['scope']=='every_chunk' and plan['floor_tokens'] is None) if arm=='C0' else (plan['scope']=='size_split' and type(plan['floor_tokens']) is int and plan['floor_tokens']>0 and plan['small']['fused']==0),'source_plan_chunk_shape_mismatch')
++  if i8=='0':require(not plan['big']['i8'] and not plan['small']['i8'],'explicit_i8_off_contradicts_plan')
++  chunks=build.get('requested_chunks',(2048,1521))
++  require(type(chunks) in (tuple,list) and len(chunks)>0 and all(type(n) is int and n>0 for n in chunks),'requested_chunks_invalid')
++  validation=validate_prompt_kernel_plan(plan,arm,chunks=chunks)
++  require(validation['ok'],'arm_dispatch_plan_mismatch')
++  count=diagnostics.get('native_fused_branch_entry_count')
++  require(type(count) is int and count>=0 and diagnostics.get('native_fused_branch_entry_kind')==NATIVE_FUSED_BRANCH_KIND,'branch_entry_evidence_missing')
++  branch_required=arm!='C0' and bool(validation['applicable_fused_chunk_tokens'])
++  require(count==0 if arm=='C0' else count>=1 if branch_required else True,'branch_entry_contradicts_or_missing_for_arm')
++  result.update(branch_entry_observed=count>0,branch_entry_count=count,branch_entry_kind=NATIVE_FUSED_BRANCH_KIND,
++                branch_entry_required=branch_required,branch_entry_scope='cumulative process log; not per-layer or per-request launch proof')
++  result.update(ok=True,reason='matched',dispatch_family='own_i8' if arm=='C0' else 'native_fused',
++                expert_i8_setting='unset_with_proven_MMQ_free_default' if i8 is None else i8,
++                plan_validation=validation,source_rules_pinned_identical=True,actual_binary_bound=True)
++ except (ValueError,TypeError,KeyError) as exc:
++  result['reason']=str(exc) if isinstance(exc,ValueError) else 'malformed_evidence'
+@@ -127,0 +225,2 @@
++  if line==NATIVE_FUSED_BRANCH_LINE:
++   selected.append(line);continue
+@@ -140 +239,3 @@
+- return dict(failure_indications=failures,engine_log_bytes=len(raw) if raw is not None else 0,
++ return dict(native_fused_branch_entry_count=sum(line==NATIVE_FUSED_BRANCH_LINE for line in lines),
++             native_fused_branch_entry_kind=NATIVE_FUSED_BRANCH_KIND,
++             failure_indications=failures,engine_log_bytes=len(raw) if raw is not None else 0,
+--- a/collect_effective.py
++++ b/collect_effective.py
+@@ -4,2 +4,2 @@
+-DIAGNOSTICS=('STRATA_PREFILL_TIMING','STRATA_HIPBLASLT_VERBOSE','STRATA_PF_FUSED_TRACE','STRATA_MANIFEST')
+-ALLOWED=('STRATA_PF_FUSED','STRATA_PF_FUSED_NATIVE','STRATA_PF_F16','STRATA_PF_DM16','STRATA_HC_Q8','STRATA_ROUTE_TAIL_SKIP','STRATA_PF_WMMA')
++DIAGNOSTICS=('STRATA_PREFILL_TIMING','STRATA_HIPBLASLT_VERBOSE','STRATA_PF_FUSED_TRACE','STRATA_MANIFEST','STRATA_I8_COUNT')
++ALLOWED=('STRATA_PF_FUSED','STRATA_PF_FUSED_NATIVE','STRATA_PF_F16','STRATA_PF_DM16','STRATA_HC_Q8','STRATA_ROUTE_TAIL_SKIP','STRATA_PF_WMMA','STRATA_EXPERT_I8')
+@@ -72,0 +73,2 @@
++      observed=list(ALLOWED)+list(DIAGNOSTICS)
++      absent=[k for k in observed if k.encode() not in env]
+@@ -73,0 +76 @@
++      binary_sha256=None if identity_only else hashlib.sha256((p/'exe').read_bytes()).hexdigest()
+@@ -83 +86 @@
+-      found.append({'pid':int(p.name),'start_ticks':before,'environment':selected,'mapped_libraries':libs,'mapped_libraries_hashed':not identity_only,**argv_proof,'diagnostic_variables_absent':list(DIAGNOSTICS),'environment_observation_scope':'initial exec environment from /proc; dynamically added own-only defaults are not claimed observable here'})
++      found.append({'pid':int(p.name),'start_ticks':before,'environment':selected,'observed_selector_names':observed,'absent_selector_names':absent,'binary_sha256':binary_sha256,'mapped_libraries':libs,'mapped_libraries_hashed':not identity_only,**argv_proof,'diagnostic_variables_absent':list(DIAGNOSTICS),'environment_observation_scope':'initial exec environment from /proc; dynamically added own-only defaults are not claimed observable here'})
+--- a/test_collect_diagnostics.py
++++ b/test_collect_diagnostics.py
+@@ -1,0 +2 @@
++import copy
+@@ -26 +27 @@
+-  self.assertTrue(d.validate_prompt_kernel_plan(p,'C0')['ok'])
++  self.assertFalse(d.validate_prompt_kernel_plan(p,'C0')['ok'])
+@@ -153 +154,126 @@
+-if __name__=='__main__':unittest.main(verbosity=2)
++
++
++I8='strata: prompt kernels: every chunk runs 48 of 48 layers on the int8 kernels.'
++def combined(arm='C0'):
++ plan=d.parse_prompt_kernel_plan(I8 if arm=='C0' else fused())
++ diagnostic=dict(native_fused_branch_entry_count=0 if arm=='C0' else 1,native_fused_branch_entry_kind=d.NATIVE_FUSED_BRANCH_KIND,prompt_kernel_plan=plan,prompt_kernel_plan_status='observed',prompt_kernel_plan_line_count=1,
++                 prompt_kernel_plan_parse_errors=0,engine_start_count=1,engine_start_count_kind='pre_exec_start_attempt_markers',restart_or_fallback_indicated=False,
++                 lifecycle_logs_present={'engine':True,'server':True},failure_indications=[])
++ build=dict(d.SOURCES,build_options=dict(d.BUILD_OPTIONS),prefill_compile_definitions={side:dict(d.PREFILL_DEFINITIONS) for side in ('B','C')},rule_sha256={'B':dict(d.RULE_SHA256),'C':dict(d.RULE_SHA256)},
++            binary_sha256={'B1':'b'*64,'C0':'c'*64,'C1':'c'*64})
++ effective=dict(binary_sha256=build['binary_sha256'][arm],native_argv_matches_config=True,native_drafter_options_absent=True,
++                pid=123,start_ticks='456',environment={'STRATA_PF_FUSED':'0' if arm=='C0' else '1','STRATA_PF_FUSED_NATIVE':'1',
++                'STRATA_PF_F16':'0','STRATA_PF_DM16':'0','STRATA_PF_WMMA':'0'},
++                observed_selector_names=list(d.SELECTORS+d.DIAGNOSTICS),absent_selector_names=['STRATA_EXPERT_I8',*d.DIAGNOSTICS])
++ return diagnostic,effective,arm,build
++
++class CombinedTests(unittest.TestCase):
++ def verdict(self,parts):return d.validate_combined_dispatch_evidence(*parts)
++ def test_all_arms(self):
++  for arm in ('C0','C1','B1'):
++   out=self.verdict(combined(arm));self.assertTrue(out['ok'],out)
++   self.assertEqual(out['dispatch_family'],'own_i8' if arm=='C0' else 'native_fused')
++   self.assertFalse(out['actual_kernel_launches_proven']);self.assertFalse(out['kernel_launch_trace'])
++   self.assertIn('group size',out['limitations'][1])
++ def test_int8_cannot_mean_native_fused(self):
++  parts=combined('C1');parts[0]['prompt_kernel_plan']=d.parse_prompt_kernel_plan(I8)
++  self.assertFalse(self.verdict(parts)['ok'])
++ def test_fp16_cannot_mean_c0(self):
++  parts=combined();parts[0]['prompt_kernel_plan']=d.parse_prompt_kernel_plan(FP16)
++  self.assertFalse(self.verdict(parts)['ok'])
++ def test_unknown_or_unobserved_i8(self):
++  for mode in ('missing','unobserved','unknown'):
++   parts=combined();eff=parts[1]
++   if mode=='unobserved':eff['observed_selector_names'].remove('STRATA_EXPERT_I8')
++   else:
++    eff['absent_selector_names'].remove('STRATA_EXPERT_I8')
++    if mode=='unknown':eff['environment']['STRATA_EXPERT_I8']='auto'
++   self.assertFalse(self.verdict(parts)['ok'])
++ def test_explicit_i8_values(self):
++  for value,wanted in [('1',True),('0',False)]:
++   parts=combined();parts[1]['absent_selector_names'].remove('STRATA_EXPERT_I8');parts[1]['environment']['STRATA_EXPERT_I8']=value
++   self.assertEqual(self.verdict(parts)['ok'],wanted)
++ def test_fused_i8_off_with_no_i8_plan_allowed(self):
++  parts=combined('C1');parts[1]['absent_selector_names'].remove('STRATA_EXPERT_I8');parts[1]['environment']['STRATA_EXPERT_I8']='0'
++  self.assertTrue(self.verdict(parts)['ok'])
++  parts[0]['prompt_kernel_plan']=d.parse_prompt_kernel_plan(fused(small='48 on the int8 kernels'))
++  self.assertFalse(self.verdict(parts)['ok'])
++ def test_missing_required_flag(self):
++  for key in d.SELECTORS[:-1]:
++   parts=combined();parts[1]['environment'].pop(key)
++   self.assertFalse(self.verdict(parts)['ok'])
++ def test_binary_or_source_mismatch(self):
++  for key in ('B_source','C_source'):
++   parts=combined();parts[3][key]='a'*40;self.assertFalse(self.verdict(parts)['ok'])
++  parts=combined();parts[1]['binary_sha256']='a'*64;self.assertFalse(self.verdict(parts)['ok'])
++ def test_compile_and_rule_pins(self):
++  for key in d.BUILD_OPTIONS:
++   parts=combined();parts[3]['build_options'].pop(key);self.assertFalse(self.verdict(parts)['ok'])
++  parts=combined();parts[3]['rule_sha256']['B'][next(iter(d.RULE_SHA256))]='a'*64
++  self.assertFalse(self.verdict(parts)['ok'])
++ def test_actual_prefill_compile_definitions_required(self):
++  for side in ('B','C'):
++   for key in d.PREFILL_DEFINITIONS:
++    parts=combined();parts[3]['prefill_compile_definitions'][side].pop(key)
++    self.assertEqual(self.verdict(parts)['reason'],'prefill_compile_definitions_not_proven')
++  parts=combined();parts[3]['prefill_compile_definitions']['B']['STRATA_PREFILL_MMQ']='1'
++  self.assertFalse(self.verdict(parts)['ok'])
++ def test_diagnostics_presence_and_absence_evidence(self):
++  for key in d.DIAGNOSTICS:
++   parts=combined();parts[1]['absent_selector_names'].remove(key);parts[1]['environment'][key]='0'
++   self.assertFalse(self.verdict(parts)['ok'])
++ def test_lifecycle(self):
++  for key,value in [('engine_start_count_kind',None),('engine_start_count_kind','kernel_launches'),('engine_start_count',2),('engine_start_count',True),('restart_or_fallback_indicated',True),('restart_or_fallback_indicated',None),('lifecycle_logs_present',{'engine':True,'server':False})]:
++   parts=combined();parts[0][key]=value;self.assertFalse(self.verdict(parts)['ok'])
++ def test_plan_conflict_or_missing_scope(self):
++  for key,value in [('prompt_kernel_plan_status','conflicting'),('prompt_kernel_plan_line_count',2),('prompt_kernel_plan_parse_errors',1)]:
++   parts=combined();parts[0][key]=value;self.assertFalse(self.verdict(parts)['ok'])
++  for key in ('kernel_launch_trace','evidence_kind'):
++   parts=combined();parts[0]['prompt_kernel_plan'].pop(key);self.assertFalse(self.verdict(parts)['ok'])
++ def test_tampered_counts(self):
++  parts=combined();parts[0]['prompt_kernel_plan']['big']['i8']=47
++  self.assertFalse(self.verdict(parts)['ok'])
++ def test_below_floor_record_only(self):
++  parts=combined('C1');parts[3]['requested_chunks']=[85,2048,1521]
++  out=self.verdict(parts);self.assertTrue(out['ok'])
++  self.assertIsNone(out['plan_validation']['planned_chunks'][0]['matches_expected'])
++  self.assertEqual(out['plan_validation']['applicable_fused_chunk_tokens'],[2048,1521])
++ def test_impossible_every_chunk_fused_wording_rejected(self):
++  parts=combined('C1');parts[0]['prompt_kernel_plan']=d.parse_prompt_kernel_plan('strata: prompt kernels: every chunk runs 48 of 48 layers on the fused kernels.')
++  self.assertEqual(self.verdict(parts)['reason'],'source_plan_chunk_shape_mismatch')
++ def test_historic_allowlist_not_absence(self):
++  parts=combined();parts[1].pop('observed_selector_names');parts[1].pop('absent_selector_names')
++  self.assertEqual(self.verdict(parts)['reason'],'selector_observation_missing')
++ def test_native_identity_missing(self):
++  for key in ('pid','start_ticks','native_argv_matches_config','native_drafter_options_absent'):
++   parts=combined();parts[1].pop(key);self.assertFalse(self.verdict(parts)['ok'])
++ def test_exact_native_branch_capture(self):
++  line=d.NATIVE_FUSED_BRANCH_LINE
++  out=d.collect_diagnostics((line+'\n'+line+'\n').encode())
++  self.assertEqual(out['native_fused_branch_entry_count'],2)
++  self.assertEqual(out['native_fused_branch_entry_kind'],'native_fused_branch_entry')
++  for bad in [line+'.',line+' /private',line.replace('#136','#137')]:
++   self.assertEqual(d.collect_diagnostics(bad.encode())['native_fused_branch_entry_count'],0)
++ def test_same_int8_word_not_own_family(self):
++  parts=combined();parts[0]['native_fused_branch_entry_count']=1
++  self.assertFalse(self.verdict(parts)['ok'])
++ def test_fused_long_requires_branch_entry(self):
++  parts=combined('C1');parts[0]['native_fused_branch_entry_count']=0
++  self.assertEqual(self.verdict(parts)['reason'],'branch_entry_contradicts_or_missing_for_arm')
++  for arm in ('C1','B1'):
++   out=self.verdict(combined(arm));self.assertTrue(out['branch_entry_observed'])
++   self.assertTrue(out['branch_entry_required']);self.assertFalse(out['actual_kernel_launches_proven'])
++ def test_below_floor_only_zero_marker_allowed(self):
++  parts=combined('C1');parts[3]['requested_chunks']=[85];parts[0]['native_fused_branch_entry_count']=0
++  out=self.verdict(parts);self.assertTrue(out['ok']);self.assertFalse(out['branch_entry_required'])
++  self.assertFalse(out['branch_entry_observed']);self.assertFalse(out['actual_kernel_launches_proven'])
++ def test_missing_unknown_branch_scope_rejects(self):
++  for key,value in [('native_fused_branch_entry_count',None),('native_fused_branch_entry_count',True),('native_fused_branch_entry_kind','kernel_trace')]:
++   parts=combined();parts[0][key]=value;self.assertEqual(self.verdict(parts)['reason'],'branch_entry_evidence_missing')
++ def test_pinned_rules_match_archived_sources_read_only(self):
++  root=pathlib.Path(__file__).resolve().parent.parent
++  for arm in ('B','C'):
++   for relative,wanted in d.RULE_SHA256.items():
++    self.assertEqual(hashlib.sha256((root/('source-'+arm)/relative).read_bytes()).hexdigest(),wanted)
++
++if __name__=='__main__':unittest.main()
+--- a/test_collect_effective.py
++++ b/test_collect_effective.py
+@@ -97,0 +98,5 @@
++        self.assertIn('STRATA_EXPERT_I8',out['observed_selector_names'])
++        self.assertIn('STRATA_EXPERT_I8',out['absent_selector_names'])
++        self.assertIsNone(out['binary_sha256'])
++        self.assertTrue(set(DIAGNOSTICS)<=set(out['observed_selector_names']))
++        self.assertTrue(set(DIAGNOSTICS)<=set(out['absent_selector_names']))

@@ -1,0 +1,26 @@
+{
+  "runtime_unit_tests_passed": 186,
+  "quality_logic_unit_tests_passed": 6,
+  "late_window_mock_checks_passed": 5,
+  "independent_static_promotion_review": "PASS",
+  "primary_P1_qualified": 6,
+  "kernel_pairs_passed": 4,
+  "model_quality_suite": "not_run",
+  "P2": "not_run",
+  "native_source_changed": false,
+  "GPU_work_after_restoration": false,
+  "prior_and_new_sealed_inputs_unchanged": true,
+  "sanitized_no_raw_response_bodies": true,
+  "README_yomiyasu": "authorized v2.5 reference; manual proofreading; automatic checks not run",
+  "publication_tests": {
+    "run": 63,
+    "passed": 60,
+    "skipped": 3,
+    "skips": "Two archived-source checks and one private-launcher check; passed in original sealed environment, intentionally not claimed as re-run in public package."
+  },
+  "synthetic_request_regenerated_byte_identical": true,
+  "public_diff_scope": "collector and collector tests only; no native/lifecycle code changes",
+  "published_base": "de003b62646195c0c01f42f04d92fb9ecf464e22",
+  "minimal_patch_applies_to_pinned_base": true,
+  "minimal_patch_result_byte_identical_to_sealed_review": true
+}

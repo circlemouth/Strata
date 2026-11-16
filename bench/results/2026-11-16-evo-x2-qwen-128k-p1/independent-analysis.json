@@ -1,0 +1,691 @@
+{
+  "schema": 1,
+  "scope": "Six primary P1 runs only; reversed order; n=2 per arm; no claim about current production or general quality.",
+  "arms": {
+    "C0": "fork native binary, FUSED=0, own INT8 default in MMQ-free build",
+    "C1": "same fork native binary, FUSED=1, native-fused selected plan and branch entry",
+    "B1": "matched upstream native binary, FUSED=1; same server and request settings"
+  },
+  "runs": [
+    {
+      "run": "r1-c0",
+      "arm": "C0",
+      "prefill_s": 235.71679999999998,
+      "native_prefill_tokens_s_printed": 553.9,
+      "first_content_ttft_s": 235.83266149298288,
+      "wall_s": 237.75091292802244,
+      "output_tokens": 53,
+      "native_decode_s": 1.9615,
+      "reasoning_empty": true,
+      "output_equivalence_group": "own_i8_output",
+      "input_tokens": 130552,
+      "cache_tokens": 0,
+      "qualified": true,
+      "dispatch_family": "own_i8",
+      "native_fused_branch_count": 0,
+      "combined_proof_ok": true,
+      "actual_kernel_launches_proven": false,
+      "i8_absence_observed": true,
+      "diagnostic_absence_observed": true,
+      "engine_start_count": 1,
+      "retry_or_fallback": false,
+      "cgroup_measurement_span_s": 238.321780012,
+      "cpu_throttled_usec_delta": 0,
+      "cpu_local_throttled_usec_delta": 0,
+      "cpu_throttled_periods_delta": 0,
+      "cpu_usage_seconds_delta": 467.305961,
+      "ancestors": {
+        "system.slice": {
+          "cpu_throttled_usec_delta": 0,
+          "cpu_local_throttled_usec_delta": 0,
+          "cpu_some_psi_seconds_delta": 93.950273,
+          "memory_events_delta": {
+            "low": 0,
+            "high": 0,
+            "max": 0,
+            "oom": 0,
+            "oom_kill": 0,
+            "oom_group_kill": 0,
+            "sock_throttled": 0
+          },
+          "memory_events_local_delta": {
+            "low": 0,
+            "high": 0,
+            "max": 0,
+            "oom": 0,
+            "oom_kill": 0,
+            "oom_group_kill": 0,
+            "sock_throttled": 0
+          }
+        },
+        "root": {
+          "cpu_throttled_usec_delta": 0,
+          "cpu_local_throttled_usec_delta": 0,
+          "cpu_some_psi_seconds_delta": 77.081964,
+          "memory_events_delta": {},
+          "memory_events_local_delta": {}
+        }
+      },
+      "memory_events_delta": {
+        "low": 0,
+        "high": 0,
+        "max": 0,
+        "oom": 0,
+        "oom_kill": 0,
+        "oom_group_kill": 0,
+        "sock_throttled": 0
+      },
+      "memory_events_local_delta": {
+        "low": 0,
+        "high": 0,
+        "max": 0,
+        "oom": 0,
+        "oom_kill": 0,
+        "oom_group_kill": 0,
+        "sock_throttled": 0
+      },
+      "psi_seconds_delta": {
+        "cpu": {
+          "some": 99.293684,
+          "full": 0.054711
+        },
+        "memory": {
+          "some": 0.0,
+          "full": 0.0
+        },
+        "io": {
+          "some": 0.018134,
+          "full": 0.013917
+        }
+      },
+      "candidate_swap_bytes_after": 0,
+      "candidate_swap_out_pages_delta": 0,
+      "host_swap_out_pages_delta": 0,
+      "request_sampled_cpu_temp_c": [
+        65.125,
+        89.125
+      ],
+      "request_sampled_gpu_temp_c": [
+        61.0,
+        77.0
+      ],
+      "request_available_gib_min": 40.47758865356445,
+      "request_metric_samples": 199
+    },
+    {
+      "run": "r1-c1",
+      "arm": "C1",
+      "prefill_s": 217.7285,
+      "native_prefill_tokens_s_printed": 599.6,
+      "first_content_ttft_s": 217.8331440379843,
+      "wall_s": 219.34520237799734,
+      "output_tokens": 42,
+      "native_decode_s": 1.5533,
+      "reasoning_empty": true,
+      "output_equivalence_group": "fused_output",
+      "input_tokens": 130552,
+      "cache_tokens": 0,
+      "qualified": true,
+      "dispatch_family": "native_fused",
+      "native_fused_branch_count": 1,
+      "combined_proof_ok": true,
+      "actual_kernel_launches_proven": false,
+      "i8_absence_observed": true,
+      "diagnostic_absence_observed": true,
+      "engine_start_count": 1,
+      "retry_or_fallback": false,
+      "cgroup_measurement_span_s": 220.493745702,
+      "cpu_throttled_usec_delta": 0,
+      "cpu_local_throttled_usec_delta": 0,
+      "cpu_throttled_periods_delta": 0,
+      "cpu_usage_seconds_delta": 449.634751,
+      "ancestors": {
+        "system.slice": {
+          "cpu_throttled_usec_delta": 0,
+          "cpu_local_throttled_usec_delta": 0,
+          "cpu_some_psi_seconds_delta": 0.860012,
+          "memory_events_delta": {
+            "low": 0,
+            "high": 0,
+            "max": 0,
+            "oom": 0,
+            "oom_kill": 0,
+            "oom_group_kill": 0,
+            "sock_throttled": 0
+          },
+          "memory_events_local_delta": {
+            "low": 0,
+            "high": 0,
+            "max": 0,
+            "oom": 0,
+            "oom_kill": 0,
+            "oom_group_kill": 0,
+            "sock_throttled": 0
+          }
+        },
+        "root": {
+          "cpu_throttled_usec_delta": 0,
+          "cpu_local_throttled_usec_delta": 0,
+          "cpu_some_psi_seconds_delta": 0.927794,
+          "memory_events_delta": {},
+          "memory_events_local_delta": {}
+        }
+      },
+      "memory_events_delta": {
+        "low": 0,
+        "high": 0,
+        "max": 0,
+        "oom": 0,
+        "oom_kill": 0,
+        "oom_group_kill": 0,
+        "sock_throttled": 0
+      },
+      "memory_events_local_delta": {
+        "low": 0,
+        "high": 0,
+        "max": 0,
+        "oom": 0,
+        "oom_kill": 0,
+        "oom_group_kill": 0,
+        "sock_throttled": 0
+      },
+      "psi_seconds_delta": {
+        "cpu": {
+          "some": 0.926499,
+          "full": 0.03877
+        },
+        "memory": {
+          "some": 0.0,
+          "full": 0.0
+        },
+        "io": {
+          "some": 0.007648,
+          "full": 0.006156
+        }
+      },
+      "candidate_swap_bytes_after": 0,
+      "candidate_swap_out_pages_delta": 0,
+      "host_swap_out_pages_delta": 0,
+      "request_sampled_cpu_temp_c": [
+        70.875,
+        88.75
+      ],
+      "request_sampled_gpu_temp_c": [
+        67.0,
+        82.0
+      ],
+      "request_available_gib_min": 40.42758560180664,
+      "request_metric_samples": 184
+    },
+    {
+      "run": "r1-b1",
+      "arm": "B1",
+      "prefill_s": 218.4011,
+      "native_prefill_tokens_s_printed": 597.8,
+      "first_content_ttft_s": 218.52984313998604,
+      "wall_s": 220.04232434602454,
+      "output_tokens": 42,
+      "native_decode_s": 1.5542,
+      "reasoning_empty": true,
+      "output_equivalence_group": "fused_output",
+      "input_tokens": 130552,
+      "cache_tokens": 0,
+      "qualified": true,
+      "dispatch_family": "native_fused",
+      "native_fused_branch_count": 1,
+      "combined_proof_ok": true,
+      "actual_kernel_launches_proven": false,
+      "i8_absence_observed": true,
+      "diagnostic_absence_observed": true,
+      "engine_start_count": 1,
+      "retry_or_fallback": false,
+      "cgroup_measurement_span_s": 221.209018579,
+      "cpu_throttled_usec_delta": 0,
+      "cpu_local_throttled_usec_delta": 0,
+      "cpu_throttled_periods_delta": 0,
+      "cpu_usage_seconds_delta": 451.222163,
+      "ancestors": {
+        "system.slice": {
+          "cpu_throttled_usec_delta": 0,
+          "cpu_local_throttled_usec_delta": 0,
+          "cpu_some_psi_seconds_delta": 0.954254,
+          "memory_events_delta": {
+            "low": 0,
+            "high": 0,
+            "max": 0,
+            "oom": 0,
+            "oom_kill": 0,
+            "oom_group_kill": 0,
+            "sock_throttled": 0
+          },
+          "memory_events_local_delta": {
+            "low": 0,
+            "high": 0,
+            "max": 0,
+            "oom": 0,
+            "oom_kill": 0,
+            "oom_group_kill": 0,
+            "sock_throttled": 0
+          }
+        },
+        "root": {
+          "cpu_throttled_usec_delta": 0,
+          "cpu_local_throttled_usec_delta": 0,
+          "cpu_some_psi_seconds_delta": 0.96082,
+          "memory_events_delta": {},
+          "memory_events_local_delta": {}
+        }
+      },
+      "memory_events_delta": {
+        "low": 0,
+        "high": 0,
+        "max": 0,
+        "oom": 0,
+        "oom_kill": 0,
+        "oom_group_kill": 0,
+        "sock_throttled": 0
+      },
+      "memory_events_local_delta": {
+        "low": 0,
+        "high": 0,
+        "max": 0,
+        "oom": 0,
+        "oom_kill": 0,
+        "oom_group_kill": 0,
+        "sock_throttled": 0
+      },
+      "psi_seconds_delta": {
+        "cpu": {
+          "some": 0.996067,
+          "full": 0.050865
+        },
+        "memory": {
+          "some": 0.0,
+          "full": 0.0
+        },
+        "io": {
+          "some": 0.015439,
+          "full": 0.013373
+        }
+      },
+      "candidate_swap_bytes_after": 0,
+      "candidate_swap_out_pages_delta": 0,
+      "host_swap_out_pages_delta": 0,
+      "request_sampled_cpu_temp_c": [
+        71.875,
+        89.625
+      ],
+      "request_sampled_gpu_temp_c": [
+        69.0,
+        82.0
+      ],
+      "request_available_gib_min": 40.62994384765625,
+      "request_metric_samples": 184
+    },
+    {
+      "run": "r2-b1",
+      "arm": "B1",
+      "prefill_s": 216.9964,
+      "native_prefill_tokens_s_printed": 601.6,
+      "first_content_ttft_s": 217.10987616097555,
+      "wall_s": 218.63437242200598,
+      "output_tokens": 42,
+      "native_decode_s": 1.5686,
+      "reasoning_empty": true,
+      "output_equivalence_group": "fused_output",
+      "input_tokens": 130552,
+      "cache_tokens": 0,
+      "qualified": true,
+      "dispatch_family": "native_fused",
+      "native_fused_branch_count": 1,
+      "combined_proof_ok": true,
+      "actual_kernel_launches_proven": false,
+      "i8_absence_observed": true,
+      "diagnostic_absence_observed": true,
+      "engine_start_count": 1,
+      "retry_or_fallback": false,
+      "cgroup_measurement_span_s": 219.773325244,
+      "cpu_throttled_usec_delta": 0,
+      "cpu_local_throttled_usec_delta": 0,
+      "cpu_throttled_periods_delta": 0,
+      "cpu_usage_seconds_delta": 448.168612,
+      "ancestors": {
+        "system.slice": {
+          "cpu_throttled_usec_delta": 0,
+          "cpu_local_throttled_usec_delta": 0,
+          "cpu_some_psi_seconds_delta": 0.914411,
+          "memory_events_delta": {
+            "low": 0,
+            "high": 0,
+            "max": 0,
+            "oom": 0,
+            "oom_kill": 0,
+            "oom_group_kill": 0,
+            "sock_throttled": 0
+          },
+          "memory_events_local_delta": {
+            "low": 0,
+            "high": 0,
+            "max": 0,
+            "oom": 0,
+            "oom_kill": 0,
+            "oom_group_kill": 0,
+            "sock_throttled": 0
+          }
+        },
+        "root": {
+          "cpu_throttled_usec_delta": 0,
+          "cpu_local_throttled_usec_delta": 0,
+          "cpu_some_psi_seconds_delta": 0.981069,
+          "memory_events_delta": {},
+          "memory_events_local_delta": {}
+        }
+      },
+      "memory_events_delta": {
+        "low": 0,
+        "high": 0,
+        "max": 0,
+        "oom": 0,
+        "oom_kill": 0,
+        "oom_group_kill": 0,
+        "sock_throttled": 0
+      },
+      "memory_events_local_delta": {
+        "low": 0,
+        "high": 0,
+        "max": 0,
+        "oom": 0,
+        "oom_kill": 0,
+        "oom_group_kill": 0,
+        "sock_throttled": 0
+      },
+      "psi_seconds_delta": {
+        "cpu": {
+          "some": 0.968905,
+          "full": 0.036133
+        },
+        "memory": {
+          "some": 0.0,
+          "full": 0.0
+        },
+        "io": {
+          "some": 0.019004,
+          "full": 0.017507
+        }
+      },
+      "candidate_swap_bytes_after": 0,
+      "candidate_swap_out_pages_delta": 0,
+      "host_swap_out_pages_delta": 0,
+      "request_sampled_cpu_temp_c": [
+        73.125,
+        89.375
+      ],
+      "request_sampled_gpu_temp_c": [
+        64.0,
+        83.0
+      ],
+      "request_available_gib_min": 41.0428466796875,
+      "request_metric_samples": 183
+    },
+    {
+      "run": "r2-c1",
+      "arm": "C1",
+      "prefill_s": 217.5771,
+      "native_prefill_tokens_s_printed": 600.0,
+      "first_content_ttft_s": 217.6958201220259,
+      "wall_s": 219.2092079090071,
+      "output_tokens": 42,
+      "native_decode_s": 1.5553,
+      "reasoning_empty": true,
+      "output_equivalence_group": "fused_output",
+      "input_tokens": 130552,
+      "cache_tokens": 0,
+      "qualified": true,
+      "dispatch_family": "native_fused",
+      "native_fused_branch_count": 1,
+      "combined_proof_ok": true,
+      "actual_kernel_launches_proven": false,
+      "i8_absence_observed": true,
+      "diagnostic_absence_observed": true,
+      "engine_start_count": 1,
+      "retry_or_fallback": false,
+      "cgroup_measurement_span_s": 219.718819546,
+      "cpu_throttled_usec_delta": 0,
+      "cpu_local_throttled_usec_delta": 0,
+      "cpu_throttled_periods_delta": 0,
+      "cpu_usage_seconds_delta": 449.27283,
+      "ancestors": {
+        "system.slice": {
+          "cpu_throttled_usec_delta": 0,
+          "cpu_local_throttled_usec_delta": 0,
+          "cpu_some_psi_seconds_delta": 0.869856,
+          "memory_events_delta": {
+            "low": 0,
+            "high": 0,
+            "max": 0,
+            "oom": 0,
+            "oom_kill": 0,
+            "oom_group_kill": 0,
+            "sock_throttled": 0
+          },
+          "memory_events_local_delta": {
+            "low": 0,
+            "high": 0,
+            "max": 0,
+            "oom": 0,
+            "oom_kill": 0,
+            "oom_group_kill": 0,
+            "sock_throttled": 0
+          }
+        },
+        "root": {
+          "cpu_throttled_usec_delta": 0,
+          "cpu_local_throttled_usec_delta": 0,
+          "cpu_some_psi_seconds_delta": 0.951841,
+          "memory_events_delta": {},
+          "memory_events_local_delta": {}
+        }
+      },
+      "memory_events_delta": {
+        "low": 0,
+        "high": 0,
+        "max": 0,
+        "oom": 0,
+        "oom_kill": 0,
+        "oom_group_kill": 0,
+        "sock_throttled": 0
+      },
+      "memory_events_local_delta": {
+        "low": 0,
+        "high": 0,
+        "max": 0,
+        "oom": 0,
+        "oom_kill": 0,
+        "oom_group_kill": 0,
+        "sock_throttled": 0
+      },
+      "psi_seconds_delta": {
+        "cpu": {
+          "some": 0.919292,
+          "full": 0.039688
+        },
+        "memory": {
+          "some": 0.0,
+          "full": 0.0
+        },
+        "io": {
+          "some": 0.014109,
+          "full": 0.012797
+        }
+      },
+      "candidate_swap_bytes_after": 0,
+      "candidate_swap_out_pages_delta": 0,
+      "host_swap_out_pages_delta": 0,
+      "request_sampled_cpu_temp_c": [
+        73.125,
+        89.375
+      ],
+      "request_sampled_gpu_temp_c": [
+        70.0,
+        80.0
+      ],
+      "request_available_gib_min": 40.8939323425293,
+      "request_metric_samples": 183
+    },
+    {
+      "run": "r2-c0",
+      "arm": "C0",
+      "prefill_s": 236.4734,
+      "native_prefill_tokens_s_printed": 552.1,
+      "first_content_ttft_s": 236.59669486799976,
+      "wall_s": 238.5236549670226,
+      "output_tokens": 53,
+      "native_decode_s": 1.9727000000000001,
+      "reasoning_empty": true,
+      "output_equivalence_group": "own_i8_output",
+      "input_tokens": 130552,
+      "cache_tokens": 0,
+      "qualified": true,
+      "dispatch_family": "own_i8",
+      "native_fused_branch_count": 0,
+      "combined_proof_ok": true,
+      "actual_kernel_launches_proven": false,
+      "i8_absence_observed": true,
+      "diagnostic_absence_observed": true,
+      "engine_start_count": 1,
+      "retry_or_fallback": false,
+      "cgroup_measurement_span_s": 238.951171738,
+      "cpu_throttled_usec_delta": 0,
+      "cpu_local_throttled_usec_delta": 0,
+      "cpu_throttled_periods_delta": 0,
+      "cpu_usage_seconds_delta": 468.433378,
+      "ancestors": {
+        "system.slice": {
+          "cpu_throttled_usec_delta": 0,
+          "cpu_local_throttled_usec_delta": 0,
+          "cpu_some_psi_seconds_delta": 94.249862,
+          "memory_events_delta": {
+            "low": 0,
+            "high": 0,
+            "max": 0,
+            "oom": 0,
+            "oom_kill": 0,
+            "oom_group_kill": 0,
+            "sock_throttled": 0
+          },
+          "memory_events_local_delta": {
+            "low": 0,
+            "high": 0,
+            "max": 0,
+            "oom": 0,
+            "oom_kill": 0,
+            "oom_group_kill": 0,
+            "sock_throttled": 0
+          }
+        },
+        "root": {
+          "cpu_throttled_usec_delta": 0,
+          "cpu_local_throttled_usec_delta": 0,
+          "cpu_some_psi_seconds_delta": 78.206056,
+          "memory_events_delta": {},
+          "memory_events_local_delta": {}
+        }
+      },
+      "memory_events_delta": {
+        "low": 0,
+        "high": 0,
+        "max": 0,
+        "oom": 0,
+        "oom_kill": 0,
+        "oom_group_kill": 0,
+        "sock_throttled": 0
+      },
+      "memory_events_local_delta": {
+        "low": 0,
+        "high": 0,
+        "max": 0,
+        "oom": 0,
+        "oom_kill": 0,
+        "oom_group_kill": 0,
+        "sock_throttled": 0
+      },
+      "psi_seconds_delta": {
+        "cpu": {
+          "some": 99.733996,
+          "full": 0.080809
+        },
+        "memory": {
+          "some": 0.0,
+          "full": 0.0
+        },
+        "io": {
+          "some": 0.011319,
+          "full": 0.010626
+        }
+      },
+      "candidate_swap_bytes_after": 0,
+      "candidate_swap_out_pages_delta": 0,
+      "host_swap_out_pages_delta": 0,
+      "request_sampled_cpu_temp_c": [
+        73.375,
+        89.875
+      ],
+      "request_sampled_gpu_temp_c": [
+        70.0,
+        82.0
+      ],
+      "request_available_gib_min": 40.71210861206055,
+      "request_metric_samples": 199
+    }
+  ],
+  "medians": {
+    "C0": {
+      "n": 2,
+      "prefill_s": 236.0951,
+      "first_content_ttft_s": 236.21467818049132,
+      "wall_s": 238.13728394752252,
+      "output_tokens": 53.0,
+      "native_decode_s": 1.9671
+    },
+    "C1": {
+      "n": 2,
+      "prefill_s": 217.6528,
+      "first_content_ttft_s": 217.7644820800051,
+      "wall_s": 219.27720514350221,
+      "output_tokens": 42.0,
+      "native_decode_s": 1.5543
+    },
+    "B1": {
+      "n": 2,
+      "prefill_s": 217.69875000000002,
+      "first_content_ttft_s": 217.8198596504808,
+      "wall_s": 219.33834838401526,
+      "output_tokens": 42.0,
+      "native_decode_s": 1.5614
+    }
+  },
+  "contrasts": {
+    "C1_vs_C0_prefill_seconds_saved": 18.44229999999999,
+    "C1_vs_C0_prefill_time_reduction_pct": 7.811386174469526,
+    "C1_vs_C0_prefill_throughput_increase_pct": 8.47326567818103,
+    "C1_vs_B1_prefill_seconds_saved": 0.04595000000000482,
+    "C1_vs_B1_prefill_time_reduction_pct": 0.02110714921422785
+  },
+  "output_variance": {
+    "C0_both_content_identical": true,
+    "C1_B1_all_four_content_identical": true,
+    "C0_vs_fused_content_different": true,
+    "reasoning_empty_all": true,
+    "raw_content_exported": false,
+    "quality_conclusion": "Output difference is not by itself a semantic failure. Separate fixed quality cases required; no broad-quality inference."
+  },
+  "limitations": [
+    "Selected-plan evidence and branch-entry evidence do not prove every layer/kernel launch.",
+    "Only two observations per arm; no statistical certainty or meaningful fork-over-upstream speed claim.",
+    "Natural EOS produced53 versus42 tokens: wall-time contrast includes output-length effects; prompt-time contrast is separate.",
+    "CPU PSI some is not CPU quota throttling, nor proof of external interference; codepaths can differ in runnable-thread pressure.",
+    "Temperature ranges are request-window sampled readings, not continuous maxima or proof against thermal effects.",
+    "Counter deltas bracket the request plus small measurement overhead.",
+    "Full campaign restoration is outside this P1-only artifact."
+  ]
+}
